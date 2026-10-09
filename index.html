@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="工程计算小工具合集。">
+<meta name="theme-color" content="#203a47">
+<title>工作工具箱 | WorkTools</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%23203a47'/%3E%3Crect x='6.5' y='6.5' width='8' height='8' rx='1.5' fill='%23b9d1d9'/%3E%3Crect x='17.5' y='6.5' width='8' height='8' rx='1.5' fill='%23607a84'/%3E%3Crect x='6.5' y='17.5' width='8' height='8' rx='1.5' fill='%23607a84'/%3E%3Crect x='17.5' y='17.5' width='8' height='8' rx='1.5' fill='%23b9d1d9'/%3E%3C/svg%3E">
+<style>
+:root {
+  color-scheme: light;
+  --page: #edf1f3;
+  --surface: #ffffff;
+  --ink: #202e36;
+  --line: #d4dde1;
+  --line-dark: #b5c3ca;
+  --header: #203a47;
+  --accent: #23677e;
+  --accent-soft: #e5eff2;
+  --focus: rgba(35, 103, 126, .22);
+  --sans: Inter, "Segoe UI", "Microsoft YaHei", "PingFang SC", Arial, sans-serif;
+  --header-height: 54px;
+}
+
+* { box-sizing: border-box; }
+body { margin: 0; color: var(--ink); background: var(--page); font: 14px/1.5 var(--sans); -webkit-font-smoothing: antialiased; }
+a:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
+.site-shell { width: min(1440px, calc(100% - 32px)); margin-inline: auto; }
+
+.site-header { position: sticky; top: 0; z-index: 120; height: var(--header-height); color: #f5f8f9; background: var(--header); border-bottom: 1px solid #3c5763; }
+.header-inner { height: 100%; display: flex; align-items: center; gap: 10px; }
+.brand-mark { width: 30px; height: 30px; display: grid; place-items: center; color: #b9d1d9; border: 1px solid #607a84; }
+.brand-mark svg { width: 20px; height: 20px; display: block; }
+.brand-name { margin: 0; font-size: 14px; font-weight: 650; letter-spacing: .04em; }
+
+main { padding-top: 16px; padding-bottom: 16px; }
+.tool-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 12px; }
+
+.tool-card { display: flex; align-items: center; gap: 12px; padding: 13px 15px; color: inherit; background: var(--surface); border: 1px solid var(--line); border-radius: 4px; text-decoration: none; transition: border-color .14s ease; }
+.tool-card:hover { border-color: var(--accent); }
+.tool-icon { width: 40px; height: 40px; flex: 0 0 40px; display: grid; place-items: center; background: var(--accent-soft); border: 1px solid var(--line); border-radius: 4px; }
+.tool-icon svg { width: 22px; height: 22px; display: block; }
+.tool-name { flex: 1; min-width: 0; margin: 0; font-size: 15px; font-weight: 650; }
+.tool-arrow { flex: 0 0 auto; color: var(--line-dark); transition: color .14s ease, transform .14s ease; }
+.tool-arrow svg { width: 15px; height: 15px; display: block; }
+.tool-card:hover .tool-arrow { color: var(--accent); transform: translateX(2px); }
+
+@media (prefers-reduced-motion: reduce) {
+  .tool-card, .tool-arrow { transition: none; }
+  .tool-card:hover .tool-arrow { transform: none; }
+}
+</style>
+</head>
+<body>
+<header class="site-header">
+  <div class="site-shell header-inner">
+    <span class="brand-mark" aria-hidden="true">
+      <svg viewBox="0 0 24 24" fill="none">
+        <rect x="3.5" y="3.5" width="7.2" height="7.2" rx="1.2" stroke="currentColor" stroke-width="1.5"/>
+        <rect x="13.3" y="3.5" width="7.2" height="7.2" rx="1.2" stroke="currentColor" stroke-width="1.5"/>
+        <rect x="3.5" y="13.3" width="7.2" height="7.2" rx="1.2" stroke="currentColor" stroke-width="1.5"/>
+        <rect x="13.3" y="13.3" width="7.2" height="7.2" rx="1.2" stroke="currentColor" stroke-width="1.5"/>
+      </svg>
+    </span>
+    <h1 class="brand-name">WorkTools 工作工具箱</h1>
+  </div>
+</header>
+
+<main class="site-shell">
+  <div class="tool-grid">
+    <a class="tool-card" href="./peihe-chaxun/">
+      <span class="tool-icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none">
+          <circle cx="9.3" cy="12" r="5.6" stroke="#316b7b" stroke-width="1.6"/>
+          <circle cx="14.7" cy="12" r="5.6" stroke="#667780" stroke-width="1.6"/>
+        </svg>
+      </span>
+      <h2 class="tool-name">配合查询</h2>
+      <span class="tool-arrow" aria-hidden="true">
+        <svg viewBox="0 0 16 16" fill="none">
+          <path d="M6 3.5 10.5 8 6 12.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </span>
+    </a>
+  </div>
+</main>
+</body>
+</html>

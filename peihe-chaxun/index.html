@@ -1,0 +1,1192 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="依据 GB/T 1800 查询孔轴极限偏差与配合性质，支持基孔制、基轴制和优先配合键盘。">
+<meta name="theme-color" content="#203a47">
+<title>配合查询 | 公差与配合查询</title>
+<style>
+:root {
+  color-scheme: light;
+  --page: #edf1f3;
+  --surface: #ffffff;
+  --surface-soft: #f7f9fa;
+  --ink: #202e36;
+  --ink-soft: #3f5059;
+  --muted: #5d6f77;
+  --line: #d4dde1;
+  --line-dark: #b5c3ca;
+  --header: #203a47;
+  --accent: #23677e;
+  --accent-dark: #174d61;
+  --accent-soft: #e5eff2;
+  --hole: #316b7b;
+  --shaft: #667780;
+  --clearance: #dcefe5;
+  --transition: #faedc9;
+  --interference: #f4dddd;
+  --missing: #b65a35;
+  --missing-soft: #fff7f1;
+  --focus: rgba(35, 103, 126, .22);
+  --mono: "Cascadia Code", "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+  --sans: Inter, "Segoe UI", "Microsoft YaHei", "PingFang SC", Arial, sans-serif;
+  --header-height: 54px;
+}
+
+* { box-sizing: border-box; }
+html { min-width: 320px; scroll-behavior: smooth; }
+body { margin: 0; color: var(--ink); background: var(--page); font: 14px/1.5 var(--sans); -webkit-font-smoothing: antialiased; }
+button, input { font: inherit; }
+button { color: inherit; }
+button:focus-visible, input:focus-visible, label:has(input:focus-visible), .tolerance-keyboard-table-wrapper:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
+[hidden] { display: none !important; }
+.site-shell { width: min(1440px, calc(100% - 32px)); margin-inline: auto; }
+
+.site-header { position: sticky; top: 0; z-index: 120; height: var(--header-height); color: #f5f8f9; background: var(--header); border-bottom: 1px solid #3c5763; }
+.header-inner { height: 100%; display: flex; align-items: center; justify-content: space-between; gap: 14px; }
+.brand { display: inline-flex; align-items: center; gap: 10px; color: inherit; text-decoration: none; }
+.brand-mark { width: 30px; height: 30px; display: grid; place-items: center; color: #b9d1d9; border: 1px solid #607a84; }
+.brand-mark svg { width: 20px; height: 20px; display: block; }
+.brand-name { font-size: 14px; font-weight: 650; letter-spacing: .04em; }
+.header-home { display: inline-flex; align-items: center; gap: 5px; padding: 6px 0; color: #d8e1e4; font-size: 12px; letter-spacing: .02em; text-decoration: none; transition: color .14s ease; }
+.header-home svg { width: 12px; height: 12px; display: block; }
+.header-home:hover { color: #ffffff; }
+.header-home:focus-visible { outline: 2px solid #b9d1d9; outline-offset: 3px; }
+
+main { padding-top: 12px; padding-bottom: 16px; }
+.page-heading { display: flex; align-items: baseline; gap: 13px; margin-bottom: 7px; }
+.page-heading h1 { margin: 0; color: var(--ink); font-size: 27px; font-weight: 650; line-height: 1.2; letter-spacing: -.035em; }
+.page-heading p { margin: 0; color: var(--muted); font-size: 14px; }
+.page-form { margin: 0; }
+.dimension-row { display: grid; grid-template-columns: 1fr; gap: 5px; margin-bottom: 16px; }
+.field-label { display: block; color: var(--ink-soft); font-size: 14px; font-weight: 650; }
+.dimension-control { position: relative; width: min(280px, 100%); }
+#basicDim { width: 100%; height: 42px; padding: 0 48px 0 11px; color: var(--ink); background: #fff; border: 1px solid var(--line-dark); border-radius: 4px; font-family: var(--mono); font-size: 16px; }
+#basicDim::placeholder { color: #7a898f; font-size: 14px; }
+#basicDim:hover, input[type="text"]:hover, input[type="number"]:hover { border-color: #8198a2; }
+#basicDim:focus, input[type="text"]:focus, input[type="number"]:focus { outline: 0; border-color: var(--accent); box-shadow: 0 0 0 2px var(--focus); }
+#basicDim:placeholder-shown:not(:focus), .tolerance-cell input:placeholder-shown:not(:focus) { background: var(--missing-soft); border: 1.5px dashed var(--missing); }
+.unit-suffix { position: absolute; top: 50%; right: 11px; transform: translateY(-50%); color: var(--muted); font-family: var(--mono); font-size: 12px; pointer-events: none; }
+
+.workspace-grid { display: grid; grid-template-columns: minmax(320px, 390px) minmax(0, 1fr); align-items: stretch; gap: 14px; }
+.panel { min-width: 0; background: var(--surface); border: 1px solid var(--line); border-radius: 5px; }
+.input-output-panel { position: sticky; top: calc(var(--header-height) + 10px); align-self: start; min-width: 0; display: flex; flex-direction: column; padding: 0; }
+.calculator-panel { padding: 17px 18px 14px; }
+.keyboard-panel { padding: 16px 17px; background: transparent; border: 0; border-radius: 0; }
+
+.system-field { min-width: 0; margin: 0; padding: 0; border: 0; }
+.system-field legend { margin-bottom: 6px; color: var(--ink-soft); font-size: 14px; font-weight: 600; }
+.system-options { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.system-option { position: relative; min-width: 0; min-height: 44px; display: flex; align-items: center; justify-content: center; gap: 7px; padding: 6px 8px; color: var(--ink-soft); background: #fff; border: 1px solid var(--line); border-radius: 4px; cursor: pointer; transition: background .14s ease, border-color .14s ease, color .14s ease; }
+.system-option:hover { border-color: #91a5ad; }
+.system-option.selected { color: #1e5568; background: var(--accent-soft); border-color: #8aadb9; }
+.system-option input { position: absolute; top: 3px; left: 3px; width: 1px; height: 1px; margin: 0; opacity: 0; }
+.system-option:focus-within { outline: 3px solid var(--focus); outline-offset: 2px; }
+.system-letter { color: var(--accent-dark); font-family: var(--mono); font-size: 15px; font-weight: 700; }
+.system-copy strong { font-size: 13px; font-weight: 600; white-space: nowrap; }
+.system-copy small, .radio-indicator { display: none; }
+
+.tolerance-section { margin-top: 17px; padding-top: 14px; border-top: 1px solid var(--line); }
+.tolerance-section h2 { margin: 0 0 8px; color: var(--ink-soft); font-size: 14px; font-weight: 650; }
+.tolerance-grid { display: grid; gap: 9px; }
+.tolerance-grid-row { min-width: 0; display: grid; grid-template-columns: 29px minmax(0, 1.2fr) minmax(0, .78fr); align-items: end; gap: 6px; }
+.part-label { min-height: 40px; display: flex; align-items: center; gap: 5px; color: var(--ink-soft); font-size: 13px; font-weight: 650; }
+.part-label small { display: none; }
+.part-dot { width: 7px; height: 7px; flex: 0 0 7px; border-radius: 50%; background: var(--hole); }
+.part-dot.shaft { background: var(--shaft); }
+.tolerance-cell { min-width: 0; }
+.tolerance-cell > label { display: block; margin-bottom: 4px; color: var(--muted); font-size: 12px; }
+.tolerance-cell > label small { color: inherit; font-family: var(--mono); font-size: inherit; }
+input[type="text"], input[type="number"] { width: 100%; height: 38px; padding: 0 32px 0 9px; color: var(--ink); background: #fff; border: 1px solid var(--line-dark); border-radius: 4px; font-size: 14px; transition: border-color .14s ease, box-shadow .14s ease; }
+#inputHoleToleranceCode { text-transform: uppercase; }
+#inputShaftToleranceCode { text-transform: lowercase; }
+#inputHoleToleranceCode, #inputShaftToleranceCode, #inputHoleToleranceGrade, #inputShaftToleranceGrade { font-family: var(--mono); font-size: 14px; }
+input[type="number"]::-webkit-outer-spin-button, input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+input[type="number"] { -moz-appearance: textfield; appearance: textfield; }
+input:-webkit-autofill, input:-webkit-autofill:hover, input:-webkit-autofill:focus { -webkit-box-shadow: 0 0 0 1000px #fff inset; -webkit-text-fill-color: var(--ink); caret-color: var(--ink); }
+.combo { position: relative; display: block; width: 100%; }
+.combo > .combo-toggle { position: absolute; z-index: 1; top: 0; right: 0; bottom: 0; width: 30px; display: grid; place-items: center; padding: 0; background: transparent; border: 0; border-radius: 3px; cursor: pointer; }
+.combo > .combo-toggle::before { width: 7px; height: 7px; content: ""; border: solid #60737c; border-width: 0 1.5px 1.5px 0; transform: translateY(-2px) rotate(45deg); transition: transform .14s ease; }
+.combo > .combo-toggle:hover { background: #edf2f4; }
+.combo.open > .combo-toggle::before { transform: translateY(2px) rotate(225deg); }
+.combo-menu { position: absolute; z-index: 160; top: calc(100% + 4px); left: 0; display: grid; grid-template-columns: repeat(4, minmax(38px, 1fr)); gap: 5px; width: max-content; min-width: 220px; max-width: min(300px, calc(100vw - 24px)); padding: 8px; background: #fff; border: 1px solid var(--line-dark); border-radius: 4px; box-shadow: 0 7px 18px rgba(28,48,58,.15); }
+.combo-menu[hidden] { display: none; }
+.combo-menu.grades { grid-template-columns: repeat(4, minmax(34px, 1fr)); min-width: 170px; max-width: 190px; }
+.tolerance-grid-row .tolerance-cell:last-child .combo-menu { right: 0; left: auto; }
+.combo-option { min-height: 34px; padding: 4px 6px; color: var(--ink-soft); background: #f2f6f7; border: 1px solid transparent; border-radius: 3px; font-family: var(--mono); font-size: 12px; text-align: center; cursor: pointer; transition: background .12s ease, border-color .12s ease; }
+.combo-option:hover, .combo-option:focus-visible { color: var(--accent-dark); background: var(--accent-soft); border-color: #9ab8c2; }
+.combo-option.active { color: #fff; background: var(--header); }
+.combo-empty { grid-column: 1 / -1; padding: 5px; color: var(--muted); font-size: 12px; text-align: center; }
+
+.messages { display: flex; flex-direction: column; gap: 2px; margin-top: 5px; font-size: 12px; }
+#errorInfo { color: #963c3f; font-weight: 650; }
+#errorMsg { color: #6c5b35; }
+
+.result-panel { flex: 1; min-height: 118px; display: flex; flex-direction: column; padding: 13px 18px 16px; background: #fafcfc; border: 0; border-top: 1px solid var(--line); border-radius: 0; }
+.result-heading { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; margin-bottom: 9px; }
+.result-heading h2 { margin: 0; color: var(--ink-soft); font-size: 14px; font-weight: 650; }
+.result-unit { color: var(--muted); font-size: 11px; }
+.result-empty { margin-block: auto; color: var(--muted); font-size: 12px; }
+.result-content { display: grid; gap: 8px; margin-block: auto; }
+.result-summary { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; padding-bottom: 7px; border-bottom: 1px solid var(--line); }
+.size-readout { color: var(--ink); font-family: var(--mono); font-size: 16px; font-weight: 650; }
+.size-readout small { color: var(--muted); font-size: 11px; font-weight: 500; }
+.fit-badge { min-height: 25px; display: inline-flex; align-items: center; padding: 2px 8px; border: 1px solid transparent; border-radius: 3px; font-size: 11px; font-weight: 650; white-space: nowrap; }
+.fit-badge[data-fit="clearance"] { color: #185b3b; background: var(--clearance); border-color: #83b798; }
+.fit-badge[data-fit="transition"] { color: #775000; background: var(--transition); border-color: #d1ab51; }
+.fit-badge[data-fit="interference"] { color: #8d2f38; background: var(--interference); border-color: #d18b90; }
+.fit-badge[data-fit="unknown"] { color: var(--muted); background: #edf1f3; border-color: var(--line); }
+.fit-result-grid { display: grid; grid-template-columns: 1fr 1fr; }
+.fit-result-part { min-width: 0; padding: 7px 10px; border-right: 1px solid var(--line); }
+.fit-result-part:last-child { border-right: 0; }
+.fit-result-label { display: block; margin-bottom: 5px; color: var(--muted); font-size: 12px; font-weight: 600; }
+.fit-notation { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.result-part-code { flex: 0 0 auto; color: #174d9b; font-size: 21px; font-weight: 700; line-height: 1; letter-spacing: .01em; }
+.deviation-stack { display: flex; flex-direction: column; align-items: flex-end; color: #174d9b; font-family: var(--mono); font-size: 14px; font-weight: 550; line-height: 1.42; font-variant-numeric: tabular-nums; }
+.deviation-stack span { white-space: nowrap; }
+.result-actions { display: flex; align-items: center; gap: 8px; padding-top: 5px; }
+.copy-button { min-height: 30px; display: inline-flex; align-items: center; gap: 5px; padding: 0 9px; color: var(--ink-soft); background: #fff; border: 1px solid var(--line); border-radius: 3px; font-size: 11px; font-weight: 600; cursor: pointer; }
+.copy-button:hover:not(:disabled) { color: var(--accent-dark); background: var(--accent-soft); border-color: #91b1bc; }
+.copy-button:disabled { color: #65767e; background: #eff3f4; cursor: not-allowed; }
+.copy-button svg { width: 14px; height: 14px; }
+.copy-hint { color: #285949; font-size: 11px; }
+
+.keyboard-panel { align-self: start; }
+.keyboard-panel-heading { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin: 0 0 10px; }
+.keyboard-panel-heading h2 { margin: 0; color: var(--ink); font-size: 17px; font-weight: 650; letter-spacing: -.01em; }
+.keyboard-legend { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 12px; color: var(--muted); font-size: 11px; }
+.legend-item { display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; }
+.legend-dot { width: 11px; height: 11px; display: inline-block; border-radius: 2px; }
+.legend-blue { background: #2b7190; border: 1px solid #2b7190; }
+.legend-yellow { background: #f0c35e; border: 1px solid #c99529; }
+.tolerance-keyboard-wrapper { overflow: visible; background: transparent; border: 0; border-radius: 0; }
+.tolerance-keyboard-header { width: 100%; min-height: 37px; display: flex; align-items: center; gap: 8px; padding: 6px 11px; color: var(--ink-soft); background: #f5f8f9; border-bottom: 1px solid var(--line); text-align: left; }
+.keyboard-title-group { display: inline-flex; align-items: baseline; gap: 7px; }
+.keyboard-title-group strong { font-size: 12px; font-weight: 650; }
+.keyboard-title-group small { color: var(--muted); font-size: 11px; }
+.tolerance-keyboard-content { padding: 6px; }
+.tolerance-keyboard-content[hidden] { display: none; }
+.tolerance-keyboard-table-wrapper { overflow: auto; border: 1px solid var(--line); border-radius: 3px; scrollbar-color: #a5b6bd #eef2f4; scrollbar-width: thin; }
+.tolerance-keyboard-table { width: 100%; min-width: 920px; border-collapse: separate; border-spacing: 0; background: #fff; font-size: 12px; }
+.tolerance-keyboard-table td, .tolerance-keyboard-table th { min-width: 44px; height: 40px; padding: 3px; border-right: 1px solid #edf0f2; border-bottom: 1px solid #edf0f2; text-align: center; vertical-align: middle; }
+.tolerance-keyboard-table tr:last-child td { border-bottom: 0; }
+.tolerance-keyboard-table td:last-child, .tolerance-keyboard-table th:last-child { border-right: 0; }
+.tolerance-keyboard-table thead th { position: sticky; top: 0; z-index: 3; height: 32px; font-size: 11px; font-weight: 650; }
+.tolerance-keyboard-table .th-grade, .tolerance-keyboard-table .td-grade { position: sticky; left: 0; z-index: 2; min-width: 50px; color: var(--ink-soft); background: #f0f4f5; font-family: var(--mono); font-size: 11px; font-weight: 650; }
+.tolerance-keyboard-table thead .th-grade { z-index: 4; }
+.fit-keyboard-table .th-clearance, .shaft-fit-keyboard-table .th-clearance { color: #185b3b; background: var(--clearance); }
+.fit-keyboard-table .th-transition, .shaft-fit-keyboard-table .th-transition { color: #775000; background: var(--transition); }
+.fit-keyboard-table .th-interference, .shaft-fit-keyboard-table .th-interference { color: #8d2f38; background: var(--interference); }
+.tolerance-keyboard-table thead .th-clearance, .tolerance-keyboard-table thead .th-transition, .tolerance-keyboard-table thead .th-interference { padding-left: 10px; text-align: left; }
+.tolerance-keyboard-table tbody td:not(.td-grade) { background: #fcfdfd; }
+.kb-btn { width: calc(100% - 2px); min-height: 34px; display: inline-flex; align-items: center; justify-content: center; margin: 1px; padding: 0 4px; border: 1px solid transparent; border-radius: 3px; font-family: var(--mono); font-size: 11px; font-weight: 650; cursor: pointer; transition: background .12s ease, border-color .12s ease, color .12s ease; }
+.kb-btn-blue { color: #fff; background: #2b7190; border-color: #2b7190; }
+.kb-btn-blue:hover { color: #fff; background: #215b76; border-color: #215b76; }
+.kb-btn-yellow { color: #704800; background: #fff1c9; border-color: #d2a33d; }
+.kb-btn-yellow:hover { color: #563600; background: #ffe5a0; border-color: #bb8720; }
+.kb-btn.selected { outline: 2px solid var(--accent); outline-offset: 1px; }
+
+footer { margin-top: 12px; color: var(--muted); font-size: 12px; }
+footer > details { border-top: 1px solid var(--line-dark); }
+footer > details > summary { width: max-content; padding: 9px 0 3px; color: var(--ink-soft); font-size: 13px; font-weight: 650; cursor: pointer; }
+footer .notes-overview { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; padding: 8px 0; }
+footer .notes-overview section { padding: 11px 13px; background: #fff; border: 1px solid var(--line); border-radius: 4px; }
+footer .notes-overview h3 { margin: 0 0 5px; color: var(--ink-soft); font-size: 12px; }
+footer .notes-overview p { margin: 0; line-height: 1.65; }
+footer .fit-guides { display: grid; gap: 8px; padding: 2px 0 12px; }
+footer .fit-guide { overflow: hidden; background: #fff; border: 1px solid var(--line); border-radius: 4px; }
+footer .fit-guide > summary { padding: 9px 12px; color: var(--ink-soft); font-size: 13px; font-weight: 650; cursor: pointer; }
+footer .fit-guide-clearance > summary { color: #185b3b; background: var(--clearance); }
+footer .fit-guide-transition > summary { color: #775000; background: var(--transition); }
+footer .fit-guide-interference > summary { color: #8d2f38; background: var(--interference); }
+footer .fit-guide[open] > summary { border-bottom: 1px solid var(--line); }
+footer .fit-guide-body { padding: 11px 14px 13px; color: var(--ink-soft); line-height: 1.75; }
+footer .fit-guide-body p { margin: 0 0 8px; }
+footer .fit-guide-body h4 { margin: 9px 0 5px; color: var(--ink); font-size: 12px; }
+footer .fit-guide-body ol { margin: 0; padding-left: 22px; }
+footer .fit-guide-body li + li { margin-top: 6px; }
+footer strong { color: var(--ink-soft); font-weight: 650; }
+
+@media (max-width: 1000px) {
+  .site-shell { width: min(100% - 24px, 1440px); }
+  .workspace-grid { grid-template-columns: minmax(270px, 300px) minmax(0, 1fr); gap: 10px; }
+  .calculator-panel, .keyboard-panel { padding: 14px; }
+  .result-panel { padding: 13px 14px 15px; }
+  footer .notes-overview { grid-template-columns: 1fr; }
+  .tolerance-grid { grid-template-columns: 1fr; gap: 9px; }
+  .tolerance-keyboard-table { min-width: 700px; }
+  .tolerance-keyboard-table td, .tolerance-keyboard-table th { min-width: 36px; height: 36px; }
+  .kb-btn { min-height: 30px; font-size: 12px; }
+}
+@media (max-width: 650px) {
+  .site-shell { width: calc(100% - 20px); }
+  .header-home { font-size: 11px; }
+  main { padding-top: 9px; }
+  .page-heading { align-items: baseline; gap: 9px; margin-bottom: 6px; }
+  .page-heading h1 { font-size: 24px; }
+  .page-heading p { font-size: 12px; }
+  .workspace-grid { grid-template-columns: 1fr; gap: 10px; }
+  .input-output-panel { position: static; }
+  .dimension-control { width: 100%; }
+  .tolerance-grid { grid-template-columns: 1fr; gap: 8px; }
+  .tolerance-grid-row { grid-template-columns: 34px minmax(0, 1.2fr) minmax(0, .8fr); gap: 7px; }
+  .tolerance-cell > label { font-size: 12px; }
+  input[type="text"], input[type="number"] { height: 40px; }
+  #inputHoleToleranceCode, #inputShaftToleranceCode, #inputHoleToleranceGrade, #inputShaftToleranceGrade { font-size: 14px; }
+  .keyboard-panel-heading { align-items: flex-start; flex-direction: column; gap: 6px; }
+  .keyboard-panel-heading h2 { font-size: 16px; }
+  .tolerance-keyboard-table { min-width: 800px; }
+  .tolerance-keyboard-table td, .tolerance-keyboard-table th { min-width: 40px; height: 38px; }
+  .kb-btn { min-height: 32px; font-size: 11px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; }
+}
+</style>
+</head>
+<body>
+<header class="site-header">
+  <div class="site-shell header-inner">
+    <span class="brand"><span class="brand-mark" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square"><path d="M4 5h16M4 19h16M7 8h10M7 16h10M12 5v14M9.5 11.5 12 9l2.5 2.5M9.5 12.5 12 15l2.5-2.5"/></svg></span><span class="brand-name">公差配合</span></span>
+    <a class="header-home" href="../"><svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M9.5 3.5 5 8l4.5 4.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>返回首页</a>
+  </div>
+</header>
+
+<main id="top" class="site-shell">
+  <div class="page-heading"><h1>配合查询</h1><p>公差与配合查询</p></div>
+
+  <form id="queryForm" class="page-form" autocomplete="off" novalidate>
+    <div class="workspace-grid">
+      <section class="panel input-output-panel" aria-label="数据输入与查询结果">
+        <section class="calculator-panel" aria-label="查询条件">
+          <div class="dimension-row">
+            <label class="field-label" for="basicDim">基本尺寸</label>
+            <div class="dimension-control"><input id="basicDim" type="number" inputmode="decimal" step="any" min="0.001" max="3150" placeholder="输入基本尺寸" aria-required="true"><span class="unit-suffix">mm</span></div>
+          </div>
+
+          <fieldset class="system-field" id="benchmarkBox">
+            <legend>基准制</legend>
+            <div class="system-options">
+              <label class="system-option selected" for="basicHoleSystem"><input type="radio" name="benchmarkSystem" id="basicHoleSystem" checked><span class="system-letter" aria-hidden="true">H</span><span class="system-copy"><strong>基孔制</strong></span></label>
+              <label class="system-option" for="basicShaftSystem"><input type="radio" name="benchmarkSystem" id="basicShaftSystem"><span class="system-letter" aria-hidden="true">h</span><span class="system-copy"><strong>基轴制</strong></span></label>
+            </div>
+          </fieldset>
+
+          <section class="tolerance-section" aria-label="孔、轴公差带">
+            <h2>公差带</h2>
+            <div class="tolerance-grid">
+              <div class="tolerance-grid-row">
+                <div class="part-label"><span class="part-dot" aria-hidden="true"></span><span>孔</span></div>
+                <div class="tolerance-cell"><label for="inputHoleToleranceCode">公差代号</label><div class="input-wrap"><input type="text" id="inputHoleToleranceCode" value="H" placeholder="代号" spellcheck="false" aria-label="孔公差代号" aria-required="true"></div></div>
+                <div class="tolerance-cell"><label for="inputHoleToleranceGrade">等级 IT</label><div class="input-wrap"><input type="number" min="1" max="18" step="1" id="inputHoleToleranceGrade" value="6" placeholder="IT" aria-label="孔公差等级" aria-required="true"></div></div>
+              </div>
+              <div class="tolerance-grid-row">
+                <div class="part-label"><span class="part-dot shaft" aria-hidden="true"></span><span>轴</span></div>
+                <div class="tolerance-cell"><label for="inputShaftToleranceCode">公差代号</label><div class="input-wrap"><input type="text" id="inputShaftToleranceCode" value="" placeholder="代号" spellcheck="false" aria-label="轴公差代号" aria-required="true"></div></div>
+                <div class="tolerance-cell"><label for="inputShaftToleranceGrade">等级 IT</label><div class="input-wrap"><input type="number" min="1" max="18" step="1" id="inputShaftToleranceGrade" value="5" placeholder="IT" aria-label="轴公差等级" aria-required="true"></div></div>
+              </div>
+            </div>
+          </section>
+
+          <div class="messages" role="status" aria-live="polite"><span id="errorInfo"></span><span id="errorMsg"></span></div>
+        </section>
+
+        <section class="result-panel" aria-label="查询结果">
+          <div class="result-heading"><h2>查询结果</h2><span class="result-unit">偏差单位 mm</span></div>
+          <div class="result-empty" id="resultEmpty">尚未计算</div>
+          <div id="result" class="result-content" aria-live="polite" aria-atomic="true" hidden>
+            <div class="result-summary"><strong class="size-readout"><span id="basicDimRes"></span> <small>mm</small></strong><span class="fit-badge" id="fitClassification" data-fit="unknown">—</span></div>
+            <div class="fit-result-grid">
+              <section class="fit-result-part" aria-label="孔公差带">
+                <span class="fit-result-label">孔</span>
+                <div class="fit-notation"><strong class="result-part-code" id="holeToleranceCodeandGradeRes"></strong><div class="deviation-stack" aria-label="孔上偏差与下偏差"><span id="holeUpperDeviation" aria-label="上偏差 ES"></span><span id="holeLowerDeviation" aria-label="下偏差 EI"></span></div></div>
+              </section>
+              <section class="fit-result-part" aria-label="轴公差带">
+                <span class="fit-result-label">轴</span>
+                <div class="fit-notation"><strong class="result-part-code" id="shaftToleranceCodeandGradeRes"></strong><div class="deviation-stack" aria-label="轴上偏差与下偏差"><span id="shaftUpperDeviation" aria-label="上偏差 es"></span><span id="shaftLowerDeviation" aria-label="下偏差 ei"></span></div></div>
+              </section>
+            </div>
+            <div class="result-actions"><button class="copy-button" id="copyRes" type="button" disabled><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><rect x="7" y="6" width="9" height="11" rx="1.3"/><path d="M13 6V4.5A1.5 1.5 0 0 0 11.5 3h-7A1.5 1.5 0 0 0 3 4.5v9A1.5 1.5 0 0 0 4.5 15H7"/></svg>复制结果</button><span class="copy-hint" id="copyHint" aria-live="polite"></span></div>
+          </div>
+        </section>
+      </section>
+
+      <section class="panel keyboard-panel" aria-labelledby="keyboardSectionTitle">
+        <div class="keyboard-panel-heading">
+          <h2 id="keyboardSectionTitle">优先配合键盘</h2>
+          <div class="keyboard-legend" aria-label="键盘标识"><span class="legend-item"><span class="legend-dot legend-blue" aria-hidden="true"></span>优先配合</span><span class="legend-item"><span class="legend-dot legend-yellow" aria-hidden="true"></span>可用配合</span></div>
+        </div>
+
+        <section class="tolerance-keyboard-wrapper" id="fitKeyboardWrapper" aria-label="基孔制优先配合键盘">
+          <div class="tolerance-keyboard-header"><span class="keyboard-title-group"><strong>基孔制</strong><small>基准孔 H</small></span></div>
+          <div class="tolerance-keyboard-content" id="fitKeyboardContent"><div class="tolerance-keyboard-table-wrapper" role="region" aria-label="基孔制优先配合表，可横向滚动" tabindex="0"><table class="tolerance-keyboard-table fit-keyboard-table" aria-label="基孔制优先配合组合">
+<thead>
+<tr>
+<th class="th-grade">孔</th>
+<th class="th-clearance" colspan="7">间隙配合</th>
+<th class="th-transition" colspan="4">过渡配合</th>
+<th class="th-interference" colspan="7">过盈配合</th>
+</tr>
+</thead>
+<tbody>
+<tr data-hole-grade="6">
+<td class="td-grade">H6</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td><button class="kb-btn kb-btn-yellow" data-fit="clearance" data-hole-grade="6" data-shaft-code="g" data-shaft-grade="5" type="button">g5</button></td>
+<td><button class="kb-btn kb-btn-yellow" data-fit="clearance" data-hole-grade="6" data-shaft-code="h" data-shaft-grade="5" type="button">h5</button></td>
+<td><button class="kb-btn kb-btn-yellow" data-fit="transition" data-hole-grade="6" data-shaft-code="js" data-shaft-grade="5" type="button">js5</button></td>
+<td><button class="kb-btn kb-btn-yellow" data-fit="transition" data-hole-grade="6" data-shaft-code="k" data-shaft-grade="5" type="button">k5</button></td>
+<td><button class="kb-btn kb-btn-yellow" data-fit="transition" data-hole-grade="6" data-shaft-code="m" data-shaft-grade="5" type="button">m5</button></td>
+<td></td>
+<td><button class="kb-btn kb-btn-yellow" data-fit="interference" data-hole-grade="6" data-shaft-code="n" data-shaft-grade="5" type="button">n5</button></td>
+<td><button class="kb-btn kb-btn-yellow" data-fit="interference" data-hole-grade="6" data-shaft-code="p" data-shaft-grade="5" type="button">p5</button></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr data-hole-grade="7">
+<td class="td-grade">H7</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td><button class="kb-btn kb-btn-yellow" data-fit="clearance" data-hole-grade="7" data-shaft-code="f" data-shaft-grade="6" type="button">f6</button></td>
+<td><button class="kb-btn kb-btn-blue" data-fit="clearance" data-hole-grade="7" data-shaft-code="g" data-shaft-grade="6" type="button">g6</button></td>
+<td><button class="kb-btn kb-btn-blue" data-fit="clearance" data-hole-grade="7" data-shaft-code="h" data-shaft-grade="6" type="button">h6</button></td>
+<td><button class="kb-btn kb-btn-blue" data-fit="transition" data-hole-grade="7" data-shaft-code="js" data-shaft-grade="6" type="button">js6</button></td>
+<td><button class="kb-btn kb-btn-blue" data-fit="transition" data-hole-grade="7" data-shaft-code="k" data-shaft-grade="6" type="button">k6</button></td>
+<td><button class="kb-btn kb-btn-yellow" data-fit="transition" data-hole-grade="7" data-shaft-code="m" data-shaft-grade="6" type="button">m6</button></td>
+<td><button class="kb-btn kb-btn-blue" data-fit="transition" data-hole-grade="7" data-shaft-code="n" data-shaft-grade="6" type="button">n6</button></td>
+<td></td>
+<td><button class="kb-btn kb-btn-blue" data-fit="interference" data-hole-grade="7" data-shaft-code="p" data-shaft-grade="6" type="button">p6</button></td>
+<td><button class="kb-btn kb-btn-blue" data-fit="interference" data-hole-grade="7" data-shaft-code="r" data-shaft-grade="6" type="button">r6</button></td>
+<td><button class="kb-btn kb-btn-blue" data-fit="interference" data-hole-grade="7" data-shaft-code="s" data-shaft-grade="6" type="button">s6</button></td>
+<td><button class="kb-btn kb-btn-yellow" data-fit="interference" data-hole-grade="7" data-shaft-code="t" data-shaft-grade="6" type="button">t6</button></td>
+<td><button class="kb-btn kb-btn-yellow" data-fit="interference" data-hole-grade="7" data-shaft-code="u" data-shaft-grade="6" type="button">u6</button></td>
+<td><button class="kb-btn kb-btn-yellow" data-fit="interference" data-hole-grade="7" data-shaft-code="x" data-shaft-grade="6" type="button">x6</button></td>
+</tr>
+<tr data-hole-grade="8">
+<td class="td-grade" rowspan="2">H8</td>
+<td></td>
+<td></td>
+<td></td>
+<td><button class="kb-btn kb-btn-yellow" data-fit="clearance" data-hole-grade="8" data-shaft-code="e" data-shaft-grade="7" type="button">e7</button></td>
+<td><button class="kb-btn kb-btn-blue" data-fit="clearance" data-hole-grade="8" data-shaft-code="f" data-shaft-grade="7" type="button">f7</button></td>
+<td></td>
+<td><button class="kb-btn kb-btn-blue" data-fit="clearance" data-hole-grade="8" data-shaft-code="h" data-shaft-grade="7" type="button">h7</button></td>
+<td><button class="kb-btn kb-btn-yellow" data-fit="transition" data-hole-grade="8" data-shaft-code="js" data-shaft-grade="7" type="button">js7</button></td>
+<td><button class="kb-btn kb-btn-yellow" data-fit="transition" data-hole-grade="8" data-shaft-code="k" data-shaft-grade="7" type="button">k7</button></td>
+<td><button class="kb-btn kb-btn-yellow" data-fit="transition" data-hole-grade="8" data-shaft-code="m" data-shaft-grade="7" type="button">m7</button></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td><button class="kb-btn kb-btn-yellow" data-fit="interference" data-hole-grade="8" data-shaft-code="s" data-shaft-grade="7" type="button">s7</button></td>
+<td></td>
+<td></td>
+<td><button class="kb-btn kb-btn-yellow" data-fit="interference" data-hole-grade="8" data-shaft-code="u" data-shaft-grade="8" type="button">u8</button></td>
+</tr>
+<tr data-hole-grade="8">
+<td></td>
+<td></td>
+<td><button class="kb-btn kb-btn-yellow" data-fit="clearance" data-hole-grade="8" data-shaft-code="d" data-shaft-grade="8" type="button">d8</button></td>
+<td><button class="kb-btn kb-btn-blue" data-fit="clearance" data-hole-grade="8" data-shaft-code="e" data-shaft-grade="8" type="button">e8</button></td>
+<td><button class="kb-btn kb-btn-yellow" data-fit="clearance" data-hole-grade="8" data-shaft-code="f" data-shaft-grade="8" type="button">f8</button></td>
+<td></td>
+<td><button class="kb-btn kb-btn-yellow" data-fit="clearance" data-hole-grade="8" data-shaft-code="h" data-shaft-grade="8" type="button">h8</button></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr data-hole-grade="9">
+<td class="td-grade">H9</td>
+<td></td>
+<td></td>
+<td><button class="kb-btn kb-btn-yellow" data-fit="clearance" data-hole-grade="9" data-shaft-code="d" data-shaft-grade="8" type="button">d8</button></td>
+<td><button class="kb-btn kb-btn-blue" data-fit="clearance" data-hole-grade="9" data-shaft-code="e" data-shaft-grade="8" type="button">e8</button></td>
+<td><button class="kb-btn kb-btn-yellow" data-fit="clearance" data-hole-grade="9" data-shaft-code="f" data-shaft-grade="8" type="button">f8</button></td>
+<td></td>
+<td><button class="kb-btn kb-btn-yellow" data-fit="clearance" data-hole-grade="9" data-shaft-code="h" data-shaft-grade="8" type="button">h8</button></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr data-hole-grade="10">
+<td class="td-grade">H10</td>
+<td><button class="kb-btn kb-btn-yellow" data-fit="clearance" data-hole-grade="10" data-shaft-code="b" data-shaft-grade="9" type="button">b9</button></td>
+<td><button class="kb-btn kb-btn-yellow" data-fit="clearance" data-hole-grade="10" data-shaft-code="c" data-shaft-grade="9" type="button">c9</button></td>
+<td><button class="kb-btn kb-btn-blue" data-fit="clearance" data-hole-grade="10" data-shaft-code="d" data-shaft-grade="9" type="button">d9</button></td>
+<td><button class="kb-btn kb-btn-yellow" data-fit="clearance" data-hole-grade="10" data-shaft-code="e" data-shaft-grade="9" type="button">e9</button></td>
+<td></td>
+<td></td>
+<td><button class="kb-btn kb-btn-blue" data-fit="clearance" data-hole-grade="10" data-shaft-code="h" data-shaft-grade="9" type="button">h9</button></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr data-hole-grade="11">
+<td class="td-grade">H11</td>
+<td><button class="kb-btn kb-btn-blue" data-fit="clearance" data-hole-grade="11" data-shaft-code="b" data-shaft-grade="11" type="button">b11</button></td>
+<td><button class="kb-btn kb-btn-blue" data-fit="clearance" data-hole-grade="11" data-shaft-code="c" data-shaft-grade="11" type="button">c11</button></td>
+<td><button class="kb-btn kb-btn-yellow" data-fit="clearance" data-hole-grade="11" data-shaft-code="d" data-shaft-grade="10" type="button">d10</button></td>
+<td></td>
+<td></td>
+<td></td>
+<td><button class="kb-btn kb-btn-yellow" data-fit="clearance" data-hole-grade="11" data-shaft-code="h" data-shaft-grade="10" type="button">h10</button></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table></div></div>
+        </section>
+
+        <section class="tolerance-keyboard-wrapper" id="shaftFitKeyboardWrapper" aria-label="基轴制优先配合键盘" hidden>
+          <div class="tolerance-keyboard-header"><span class="keyboard-title-group"><strong>基轴制</strong><small>基准轴 h</small></span></div>
+          <div class="tolerance-keyboard-content" id="shaftFitKeyboardContent"><div class="tolerance-keyboard-table-wrapper" role="region" aria-label="基轴制优先配合表，可横向滚动" tabindex="0"><table class="tolerance-keyboard-table shaft-fit-keyboard-table" aria-label="基轴制优先配合组合">
+<thead>
+<tr>
+<th class="th-grade">轴</th>
+<th class="th-clearance" colspan="7">间隙配合</th>
+<th class="th-transition" colspan="4">过渡配合</th>
+<th class="th-interference" colspan="7">过盈配合</th>
+</tr>
+</thead>
+<tbody>
+<tr data-shaft-grade="5">
+<td class="td-grade">h5</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td><button class="kb-btn kb-btn-yellow" data-fit="clearance" data-hole-code="G" data-hole-grade="6" data-shaft-grade="5" type="button">G6</button></td>
+<td><button class="kb-btn kb-btn-yellow" data-fit="clearance" data-hole-code="H" data-hole-grade="6" data-shaft-grade="5" type="button">H6</button></td>
+<td><button class="kb-btn kb-btn-yellow" data-fit="transition" data-hole-code="JS" data-hole-grade="6" data-shaft-grade="5" type="button">JS6</button></td>
+<td><button class="kb-btn kb-btn-yellow" data-fit="transition" data-hole-code="K" data-hole-grade="6" data-shaft-grade="5" type="button">K6</button></td>
+<td><button class="kb-btn kb-btn-yellow" data-fit="transition" data-hole-code="M" data-hole-grade="6" data-shaft-grade="5" type="button">M6</button></td>
+<td></td>
+<td><button class="kb-btn kb-btn-yellow" data-fit="interference" data-hole-code="N" data-hole-grade="6" data-shaft-grade="5" type="button">N6</button></td>
+<td><button class="kb-btn kb-btn-yellow" data-fit="interference" data-hole-code="P" data-hole-grade="6" data-shaft-grade="5" type="button">P6</button></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr data-shaft-grade="6">
+<td class="td-grade">h6</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td><button class="kb-btn kb-btn-yellow" data-fit="clearance" data-hole-code="F" data-hole-grade="7" data-shaft-grade="6" type="button">F7</button></td>
+<td><button class="kb-btn kb-btn-blue" data-fit="clearance" data-hole-code="G" data-hole-grade="7" data-shaft-grade="6" type="button">G7</button></td>
+<td><button class="kb-btn kb-btn-blue" data-fit="clearance" data-hole-code="H" data-hole-grade="7" data-shaft-grade="6" type="button">H7</button></td>
+<td><button class="kb-btn kb-btn-blue" data-fit="transition" data-hole-code="JS" data-hole-grade="7" data-shaft-grade="6" type="button">JS7</button></td>
+<td><button class="kb-btn kb-btn-blue" data-fit="transition" data-hole-code="K" data-hole-grade="7" data-shaft-grade="6" type="button">K7</button></td>
+<td><button class="kb-btn kb-btn-yellow" data-fit="transition" data-hole-code="M" data-hole-grade="7" data-shaft-grade="6" type="button">M7</button></td>
+<td><button class="kb-btn kb-btn-blue" data-fit="transition" data-hole-code="N" data-hole-grade="7" data-shaft-grade="6" type="button">N7</button></td>
+<td></td>
+<td><button class="kb-btn kb-btn-blue" data-fit="interference" data-hole-code="P" data-hole-grade="7" data-shaft-grade="6" type="button">P7</button></td>
+<td><button class="kb-btn kb-btn-blue" data-fit="interference" data-hole-code="R" data-hole-grade="7" data-shaft-grade="6" type="button">R7</button></td>
+<td><button class="kb-btn kb-btn-blue" data-fit="interference" data-hole-code="S" data-hole-grade="7" data-shaft-grade="6" type="button">S7</button></td>
+<td><button class="kb-btn kb-btn-yellow" data-fit="interference" data-hole-code="T" data-hole-grade="7" data-shaft-grade="6" type="button">T7</button></td>
+<td><button class="kb-btn kb-btn-yellow" data-fit="interference" data-hole-code="U" data-hole-grade="7" data-shaft-grade="6" type="button">U7</button></td>
+<td><button class="kb-btn kb-btn-yellow" data-fit="interference" data-hole-code="X" data-hole-grade="7" data-shaft-grade="6" type="button">X7</button></td>
+</tr>
+<tr data-shaft-grade="7">
+<td class="td-grade">h7</td>
+<td></td>
+<td></td>
+<td></td>
+<td><button class="kb-btn kb-btn-yellow" data-fit="clearance" data-hole-code="E" data-hole-grade="8" data-shaft-grade="7" type="button">E8</button></td>
+<td><button class="kb-btn kb-btn-blue" data-fit="clearance" data-hole-code="F" data-hole-grade="8" data-shaft-grade="7" type="button">F8</button></td>
+<td></td>
+<td><button class="kb-btn kb-btn-blue" data-fit="clearance" data-hole-code="H" data-hole-grade="8" data-shaft-grade="7" type="button">H8</button></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr data-shaft-grade="8">
+<td class="td-grade">h8</td>
+<td></td>
+<td></td>
+<td><button class="kb-btn kb-btn-yellow" data-fit="clearance" data-hole-code="D" data-hole-grade="9" data-shaft-grade="8" type="button">D9</button></td>
+<td><button class="kb-btn kb-btn-blue" data-fit="clearance" data-hole-code="E" data-hole-grade="9" data-shaft-grade="8" type="button">E9</button></td>
+<td><button class="kb-btn kb-btn-yellow" data-fit="clearance" data-hole-code="F" data-hole-grade="9" data-shaft-grade="8" type="button">F9</button></td>
+<td></td>
+<td><button class="kb-btn kb-btn-blue" data-fit="clearance" data-hole-code="H" data-hole-grade="9" data-shaft-grade="8" type="button">H9</button></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr data-shaft-grade="9">
+<td class="td-grade" rowspan="3">h9</td>
+<td></td>
+<td></td>
+<td></td>
+<td><button class="kb-btn kb-btn-yellow" data-fit="clearance" data-hole-code="E" data-hole-grade="8" data-shaft-grade="7" type="button">E8</button></td>
+<td><button class="kb-btn kb-btn-blue" data-fit="clearance" data-hole-code="F" data-hole-grade="8" data-shaft-grade="7" type="button">F8</button></td>
+<td></td>
+<td><button class="kb-btn kb-btn-blue" data-fit="clearance" data-hole-code="H" data-hole-grade="8" data-shaft-grade="7" type="button">H8</button></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr data-shaft-grade="9">
+<td></td>
+<td></td>
+<td><button class="kb-btn kb-btn-yellow" data-fit="clearance" data-hole-code="D" data-hole-grade="9" data-shaft-grade="8" type="button">D9</button></td>
+<td><button class="kb-btn kb-btn-blue" data-fit="clearance" data-hole-code="E" data-hole-grade="9" data-shaft-grade="8" type="button">E9</button></td>
+<td><button class="kb-btn kb-btn-yellow" data-fit="clearance" data-hole-code="F" data-hole-grade="9" data-shaft-grade="8" type="button">F9</button></td>
+<td></td>
+<td><button class="kb-btn kb-btn-blue" data-fit="clearance" data-hole-code="H" data-hole-grade="9" data-shaft-grade="8" type="button">H9</button></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr data-shaft-grade="9">
+<td><button class="kb-btn kb-btn-blue" data-fit="clearance" data-hole-code="B" data-hole-grade="11" data-shaft-grade="9" type="button">B11</button></td>
+<td><button class="kb-btn kb-btn-yellow" data-fit="clearance" data-hole-code="C" data-hole-grade="10" data-shaft-grade="9" type="button">C10</button></td>
+<td><button class="kb-btn kb-btn-blue" data-fit="clearance" data-hole-code="D" data-hole-grade="10" data-shaft-grade="9" type="button">D10</button></td>
+<td></td>
+<td></td>
+<td></td>
+<td><button class="kb-btn kb-btn-yellow" data-fit="clearance" data-hole-code="H" data-hole-grade="10" data-shaft-grade="9" type="button">H10</button></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table></div></div>
+        </section>
+      </section>
+    </div>
+  </form>
+
+  <footer>
+    <details>
+      <summary>标准、使用说明与配合选用</summary>
+      <div class="notes-overview">
+        <section>
+          <h3>标准与范围</h3>
+          <p>数据依据 GB/T 1800.1、GB/T 1800.2（对应 ISO 286-1、ISO 286-2）整理，覆盖孔 A～ZC、轴 a～zc，公差等级 IT1～IT18，基本尺寸范围为 0 &lt; D ≤ 3150 mm。JS/js 公差带在 IT7～IT11 且标准公差为奇数时，按 GB/T 1800.2—1998 注释取 ±(ITn−1)/2。</p>
+        </section>
+        <section>
+          <h3>使用方式</h3>
+          <p>选择基准制，填写基本尺寸和孔、轴公差代号及等级；所有参数有效后自动计算。点击右侧键盘组合会自动填入公差带并查询。</p>
+        </section>
+        <section>
+          <h3>结果与注意</h3>
+          <p>结果列出孔、轴的上偏差和下偏差，单位为 mm；配合性质由两公差带的极限偏差自动判定。本工具供学习参考，工程应用请以标准正文和校核为准。</p>
+        </section>
+      </div>
+      <div class="fit-guides">
+        <details class="fit-guide fit-guide-clearance">
+          <summary>间隙配合</summary>
+          <div class="fit-guide-body">
+            <p><strong>定义：</strong>孔的尺寸减去相配合轴的尺寸，差值为正时为间隙。间隙配合是孔公差带位于轴公差带之上、具有间隙的配合，也包括最小间隙为零的配合。</p>
+            <h4>轴的基本偏差选用说明</h4>
+            <ol>
+              <li><strong>a、b：</strong>可得到特别大的间隙，应用很少。</li>
+              <li><strong>c：</strong>可得到很大的间隙，一般适用于缓慢、松弛的动配合。用于工作条件较差（如农业机械等）、受力变形，或为便于装配而必须保证较大间隙的场合。推荐 H11/c11；较高等级的 H8/c7 适用于轴在高温下工作的紧密动配合，如内燃机排气阀与导管。</li>
+              <li><strong>d：</strong>一般用于 IT7～IT11 级，适用于较松的转动配合，如密封盖、滑轮、空转皮带轮与轴的配合；也用于大直径滑动轴承，如透平机、球磨机、轧辊成型机、重型弯曲机及其他重型机械中的滑动轴承。</li>
+              <li><strong>e：</strong>多用于 IT7、IT8、IT9 级，通常用于要求有明显间隙、易于转动的轴承配合，如大跨距轴承、多支点轴承。较高等级的 e 轴适用于大型、高速、重载支承，如涡轮发动机、大型电动机及内燃机主轴承、凸轮轴轴承等。</li>
+              <li><strong>f：</strong>多用于 IT6～IT8 级的一般传动配合。温度影响不大时，广泛用于普通润滑油或润滑脂润滑的支承，如齿轮箱、小电动机、泵等转轴与滑动轴承的配合。</li>
+              <li><strong>g：</strong>配合间隙很小、制造成本较高，除很轻负荷的精密装置外，不推荐用于转动配合。多用于 IT5～IT7 级，适合不回转的精密滑动配合，也用于插销等定位配合，如精密连杆轴承、活塞、滑阀、连杆销等。</li>
+              <li><strong>h：</strong>多用于 IT4～IT11 级，作为一般定位配合，广泛用于无相对转动的零件；没有温度和变形影响时，也可用于精密滑动配合。</li>
+            </ol>
+          </div>
+        </details>
+        <details class="fit-guide fit-guide-transition">
+          <summary>过渡配合</summary>
+          <div class="fit-guide-body">
+            <p><strong>定义：</strong>孔、轴公差带相互交叠。任取一对孔和轴相配，可能得到间隙，也可能得到过盈。</p>
+            <h4>轴的基本偏差选用说明</h4>
+            <ol>
+              <li><strong>js：</strong>偏差完全对称（+IT/2 和 −IT/2），平均间隙较小，多用于 IT4～IT7 级。用于间隙比 h 轴小、允许略有过盈的定位配合，如联轴节、齿圈与钢制轮毂等，可用木锤装配。</li>
+              <li><strong>k：</strong>平均间隙接近于零，适用于 IT4～IT7 级，推荐用于稍有过盈的定位配合，如为消除振动而采用的配合，一般用木锤装配。</li>
+              <li><strong>m：</strong>平均过盈较小，适用于 IT4～IT7 级，一般可用木锤装配；最大过盈时需要较大的压入力。</li>
+              <li><strong>n：</strong>平均过盈比 m 稍大，很少得到间隙，适用于 IT4～IT7 级，可用锤击或压入机装配，通常推荐用于紧密的组件配合。H6/n5 配合为过盈配合。</li>
+            </ol>
+          </div>
+        </details>
+        <details class="fit-guide fit-guide-interference">
+          <summary>过盈配合</summary>
+          <div class="fit-guide-body">
+            <p><strong>定义：</strong>孔的尺寸减去相配合轴的尺寸，差值为负时为过盈配合。</p>
+            <h4>轴的基本偏差选用说明</h4>
+            <ol>
+              <li><strong>p：</strong>与 H6 或 H7 孔配合时为过盈配合，与 H8 孔配合时为过渡配合。用于非铁类零件时属于较轻的压入配合，需要时易于拆卸；用于钢、铸铁或铜与钢组件时，为标准压入配合。</li>
+              <li><strong>r：</strong>对铁类零件为中等打入配合，对非铁类零件为轻打入配合，需要时可以拆卸。与 H8 孔配合时，直径大于 100 mm 为过盈配合，直径较小时为过渡配合。</li>
+              <li><strong>s：</strong>用于钢和铁制零件的永久或半永久装配，可产生较大的结合力。用于轻合金等弹性材料时，配合性质相当于铁类零件的 p 轴配合，如套环压装在轴上、阀座等。尺寸较大时，需用热胀或冷缩法装配以避免损伤配合表面。</li>
+              <li><strong>t：</strong>过盈较大，适用于钢和铸铁类零件的永久性结合，不用键也可传递力矩，需用热胀或冷缩法装配，如联轴节与轴的配合。</li>
+              <li><strong>u：</strong>过盈量大，一般应验算最大过盈是否会损坏工件材料，需用热胀或冷缩法装配，如火车轮毂与车轴的配合。</li>
+              <li><strong>v、x、y、z：</strong>基本偏差形成的过盈量更大，须经试验后才能应用，一般不推荐。</li>
+            </ol>
+          </div>
+        </details>
+      </div>
+    </details>
+  </footer>
+</main>
+<script>
+"use strict";
+/* ================= 数据（依据 GB/T 1800.1、GB/T 1800.2 整理，单位 μm，null=未定义） ================= */
+const DATA = {"itRanges":[[0,3],[3,6],[6,10],[10,18],[18,30],[30,50],[50,80],[80,120],[120,180],[180,250],[250,315],[315,400],[400,500],[500,630],[630,800],[800,1000],[1000,1250],[1250,1600],[1600,2000],[2000,2500],[2500,3150]],"devRanges":[[0,3],[3,6],[6,10],[10,14],[14,18],[18,24],[24,30],[30,40],[40,50],[50,65],[65,80],[80,100],[100,120],[120,140],[140,160],[160,180],[180,200],[200,225],[225,250],[250,280],[280,315],[315,355],[355,400],[400,450],[450,500],[500,560],[560,630],[630,710],[710,800],[800,900],[900,1000],[1000,1120],[1120,1250],[1250,1400],[1400,1600],[1600,1800],[1800,2000],[2000,2240],[2240,2500],[2500,2800],[2800,3150]],"it":[[0.8,1,1,1.2,1.5,1.5,2,2.5,3.5,4.5,6,7,8,9,10,11,13,15,18,22,26],[1.2,1.5,1.5,2,2.5,2.5,3,4,5,7,8,9,10,11,13,15,18,21,25,30,36],[2,2.5,2.5,3,4,4,5,6,8,10,12,13,15,16,18,21,24,29,35,41,50],[3,4,4,5,6,7,8,10,12,14,16,18,20,22,25,28,33,39,46,55,68],[4,5,6,8,9,11,13,15,18,20,23,25,27,32,36,40,47,55,65,78,96],[6,8,9,11,13,16,19,22,25,29,32,36,40,44,50,56,66,78,92,110,135],[10,12,15,18,21,25,30,35,40,46,52,57,63,70,80,90,105,125,150,175,210],[14,18,22,27,33,39,46,54,63,72,81,89,97,110,125,140,165,195,230,280,330],[25,30,36,43,52,62,74,87,100,115,130,140,155,175,200,230,260,310,370,440,540],[40,48,58,70,84,100,120,140,160,185,210,230,250,280,320,360,420,500,600,700,860],[60,75,90,110,130,160,190,220,250,290,320,360,400,440,500,560,660,780,920,1100,1350],[100,120,150,180,210,250,300,350,400,460,520,570,630,700,800,900,1050,1250,1500,1750,2100],[140,180,220,270,330,390,460,540,630,720,810,890,970,1100,1250,1400,1650,1950,2300,2800,3300],[250,300,360,430,520,620,740,870,1000,1150,1300,1400,1550,1750,2000,2300,2600,3100,3700,4400,5400],[400,480,580,700,840,1000,1200,1400,1600,1850,2100,2300,2500,2800,3200,3600,4200,5000,6000,7000,8600],[600,750,900,1100,1300,1600,1900,2200,2500,2900,3200,3600,4000,4400,5000,5600,6600,7800,9200,11000,13500],[1000,1200,1500,1800,2100,2500,3000,3500,4000,4600,5200,5700,6300,7000,8000,9000,10500,12500,15000,17500,21000],[1400,1800,2200,2700,3300,3900,4600,5400,6300,7200,8100,8900,9700,11000,12500,14000,16500,19500,23000,28000,33000]],"delta":{"3":[0,1,1,1,1,1.5,1.5,1.5,1.5,2,2,2,2,3,3,3,3,3,3,4,4,4,4,5,5,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],"4":[0,1.5,1.5,2,2,2,2,3,3,3,3,4,4,4,4,4,4,4,4,4,4,5,5,5,5,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],"5":[0,1,2,3,3,3,3,4,4,5,5,5,5,6,6,6,6,6,6,7,7,7,7,7,7,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],"6":[0,3,3,3,3,4,4,5,5,6,6,7,7,7,7,7,9,9,9,9,9,11,11,13,13,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],"7":[0,4,6,7,7,8,8,9,9,11,11,13,13,15,15,15,17,17,17,20,20,21,21,23,23,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],"8":[null,6,7,9,9,12,12,14,14,16,16,19,19,23,23,23,26,26,26,29,29,32,32,34,34,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null]},"shaft":{"a":[-270,-270,-280,-290,-290,-300,-300,-310,-320,-340,-360,-380,-410,-460,-520,-580,-660,-740,-820,-920,-1050,-1200,-1350,-1500,-1650,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],"b":[-140,-140,-150,-150,-150,-160,-160,-170,-180,-190,-200,-220,-240,-260,-280,-310,-340,-380,-420,-480,-540,-600,-680,-760,-840,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],"c":[-60,-70,-80,-95,-95,-110,-110,-120,-130,-140,-150,-170,-180,-200,-210,-230,-240,-260,-280,-300,-330,-360,-400,-440,-480,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],"cd":[-34,-46,-56,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],"d":[-20,-30,-40,-50,-50,-65,-65,-80,-80,-100,-100,-120,-120,-145,-145,-145,-170,-170,-170,-190,-190,-210,-210,-230,-230,-260,-260,-290,-290,-320,-320,-350,-350,-390,-390,-430,-430,-480,-480,-520,-520],"e":[-14,-20,-25,-32,-32,-40,-40,-50,-50,-60,-60,-72,-72,-85,-85,-85,-100,-100,-100,-110,-110,-125,-125,-135,-135,-145,-145,-160,-160,-170,-170,-195,-195,-220,-220,-240,-240,-260,-260,-290,-290],"ef":[-10,-14,-18,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],"f":[-6,-10,-13,-16,-16,-20,-20,-25,-25,-30,-30,-36,-36,-43,-43,-43,-50,-50,-50,-56,-56,-62,-62,-68,-68,-76,-76,-80,-80,-86,-86,-98,-98,-110,-110,-120,-120,-130,-130,-145,-145],"fg":[-4,-6,-8,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],"g":[-2,-4,-5,-6,-6,-7,-7,-9,-9,-10,-10,-12,-12,-14,-14,-14,-15,-15,-15,-17,-17,-18,-18,-20,-20,-22,-22,-24,-24,-26,-26,-28,-28,-30,-30,-32,-32,-34,-34,-38,-38],"h":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],"j56":[-2,-2,-2,-3,-3,-4,-4,-5,-5,-7,-7,-9,-9,-11,-11,-11,-13,-13,-13,-16,-16,-18,-18,-20,-20,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],"j7":[-4,-4,-5,-6,-6,-8,-8,-10,-10,-12,-12,-15,-15,-18,-18,-18,-21,-21,-21,-26,-26,-28,-28,-32,-32,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],"j8":[-6,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],"k47":[0,1,1,1,1,2,2,2,2,2,2,3,3,3,3,3,4,4,4,4,4,4,4,5,5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],"kold":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],"m":[2,4,6,7,7,8,8,9,9,11,11,13,13,15,15,15,17,17,17,20,20,21,21,23,23,26,26,30,30,34,34,40,40,48,48,58,58,68,68,76,76],"n":[4,8,10,12,12,15,15,17,17,20,20,23,23,27,27,27,31,31,31,34,34,37,37,40,40,44,44,50,50,56,56,66,66,78,78,92,92,110,110,135,135],"p":[6,12,15,18,18,22,22,26,26,32,32,37,37,43,43,43,50,50,50,56,56,62,62,68,68,78,78,88,88,100,100,120,120,140,140,170,170,195,195,240,240],"r":[10,15,19,23,23,28,28,34,34,41,43,51,54,63,65,68,77,80,84,94,98,108,114,126,132,150,155,175,185,210,220,250,260,300,330,370,400,440,460,550,580],"s":[14,19,23,28,28,35,35,43,43,53,59,71,79,92,100,108,122,130,140,158,170,190,208,232,252,280,310,340,380,430,470,520,580,640,720,820,920,1000,1100,1250,1400],"t":[null,null,null,null,null,null,41,48,54,66,75,91,104,122,134,146,166,180,196,218,240,268,294,330,360,400,450,500,560,620,680,780,840,960,1050,1200,1350,1500,1650,1900,2100],"u":[18,23,28,33,33,41,48,60,70,87,102,124,144,170,190,210,236,258,284,315,350,390,435,490,540,600,660,740,840,940,1050,1150,1300,1450,1600,1850,2000,2300,2500,2900,3200],"v":[null,null,null,null,39,47,55,68,81,102,120,146,172,202,228,252,284,310,340,385,425,475,530,595,660,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],"x":[20,28,34,40,45,54,64,80,97,122,146,178,210,248,280,310,350,385,425,475,525,590,660,740,820,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],"y":[null,null,null,null,null,63,75,94,114,144,174,214,254,300,340,380,425,470,520,580,650,730,820,920,1000,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],"z":[26,35,42,50,60,73,88,112,136,172,210,258,310,365,415,465,520,575,640,710,790,910,1000,1100,1250,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],"za":[32,42,52,64,77,98,118,148,180,226,274,335,400,470,535,600,670,740,820,920,1000,1150,1300,1450,1600,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],"zb":[40,50,67,90,108,136,160,200,242,300,360,445,525,620,700,780,880,960,1050,1200,1300,1500,1650,1850,2100,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],"zc":[60,80,97,130,150,188,218,274,325,405,480,585,690,800,900,1000,1150,1250,1350,1550,1700,1900,2100,2400,2600,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],"j5":[-2,-2,-2,-3,-3,-4,-4,-5,-5,-7,-7,-9,-9,-11,-11,-11,-13,-13,-13,-16,-16,-18,-18,-20,-20,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],"j6":[-2,-2,-2,-3,-3,-4,-4,-5,-5,-7,-7,-9,-9,-11,-11,-11,-13,-13,-13,-16,-16,-18,-18,-20,-20,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null]},"hole":{"A":[270,270,280,290,290,300,300,310,320,340,360,380,410,460,520,580,660,740,820,920,1050,1200,1350,1500,1650,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],"B":[140,140,150,150,150,160,160,170,180,190,200,220,240,260,280,310,340,380,420,480,540,600,680,760,840,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],"C":[60,70,80,95,95,110,110,120,130,140,150,170,180,200,210,230,240,260,280,300,330,360,400,440,480,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],"CD":[34,46,56,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],"D":[20,30,40,50,50,65,65,80,80,100,100,120,120,145,145,145,170,170,170,190,190,210,210,230,230,260,260,290,290,320,320,350,350,390,390,430,430,480,480,520,520],"E":[14,20,25,32,32,40,40,50,50,60,60,72,72,85,85,85,100,100,100,110,110,125,125,135,135,145,145,160,160,170,170,195,195,220,220,240,240,260,260,290,290],"EF":[10,14,18,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],"F":[6,10,13,16,16,20,20,25,25,30,30,36,36,43,43,43,50,50,50,56,56,62,62,68,68,76,76,80,80,86,86,98,98,110,110,120,120,130,130,145,145],"FG":[4,6,8,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],"G":[2,4,5,6,6,7,7,9,9,10,10,12,12,14,14,14,15,15,15,17,17,18,18,20,20,22,22,24,24,26,26,28,28,30,30,32,32,34,34,38,38],"H":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],"J6":[2,5,5,6,6,8,8,10,10,13,13,16,16,18,18,18,22,22,22,25,25,29,29,33,33,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],"J7":[4,6,8,10,10,12,12,14,14,18,18,22,22,26,26,26,30,30,30,36,36,39,39,43,43,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],"J8":[6,10,12,15,15,20,20,24,24,28,28,34,34,41,41,41,47,47,47,55,55,60,60,66,66,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],"K":{"le":[0,-1,-1,-1,-1,-2,-2,-2,-2,-2,-2,-3,-3,-3,-3,-3,-4,-4,-4,-4,-4,-4,-4,-5,-5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],"led":[0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],"gt":[0,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null]},"M":{"le":[-2,-4,-6,-7,-7,-8,-8,-9,-9,-11,-11,-13,-13,-15,-15,-15,-17,-17,-17,-20,-20,-21,-21,-23,-23,-26,-26,-30,-30,-34,-34,-40,-40,-48,-48,-58,-58,-68,-68,-76,-76],"led":[0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],"gt":[-2,-4,-6,-7,-7,-8,-8,-9,-9,-11,-11,-13,-13,-15,-15,-15,-17,-17,-17,-20,-20,-21,-21,-23,-23,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null]},"N":{"le":[-4,-8,-10,-12,-12,-15,-15,-17,-17,-20,-20,-23,-23,-27,-27,-27,-31,-31,-31,-34,-34,-37,-37,-40,-40,-44,-44,-50,-50,-56,-56,-66,-66,-78,-78,-92,-92,-110,-110,-135,-135],"led":[0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],"gt":[-4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null]},"P":[-6,-12,-15,-18,-18,-22,-22,-26,-26,-32,-32,-37,-37,-43,-43,-43,-50,-50,-50,-56,-56,-62,-62,-68,-68,-78,-78,-88,-88,-100,-100,-120,-120,-140,-140,-170,-170,-195,-195,-240,-240],"R":[-10,-15,-19,-23,-23,-28,-28,-34,-34,-41,-43,-51,-54,-63,-65,-68,-77,-80,-84,-94,-98,-108,-114,-126,-132,-150,-155,-175,-185,-210,-220,-250,-260,-300,-330,-370,-400,-440,-460,-550,-580],"S":[-14,-19,-23,-28,-28,-35,-35,-43,-43,-53,-59,-71,-79,-92,-100,-108,-122,-130,-140,-158,-170,-190,-208,-232,-252,-280,-310,-340,-380,-430,-470,-520,-580,-640,-720,-820,-920,-1000,-1100,-1250,-1400],"T":[null,null,null,null,null,null,-41,-48,-54,-66,-75,-91,-104,-122,-134,-146,-166,-180,-196,-218,-240,-268,-294,-330,-360,-400,-450,-500,-560,-620,-680,-780,-840,-960,-1050,-1200,-1350,-1500,-1650,-1900,-2100],"U":[-18,-23,-28,-33,-33,-41,-48,-60,-70,-87,-102,-124,-144,-170,-190,-210,-236,-258,-284,-315,-350,-390,-435,-490,-540,-600,-660,-740,-840,-940,-1050,-1150,-1300,-1450,-1600,-1850,-2000,-2300,-2500,-2900,-3200],"V":[null,null,null,null,-39,-47,-55,-68,-81,-102,-120,-146,-172,-202,-228,-252,-284,-310,-340,-385,-425,-475,-530,-595,-660,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],"X":[-20,-28,-34,-40,-45,-54,-64,-80,-97,-122,-146,-178,-210,-248,-280,-310,-350,-385,-425,-475,-525,-590,-660,-740,-820,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],"Y":[null,null,null,null,null,-63,-75,-94,-114,-144,-174,-214,-254,-300,-340,-380,-425,-470,-520,-580,-650,-730,-820,-920,-1000,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],"Z":[-26,-35,-42,-50,-60,-73,-88,-112,-136,-172,-210,-258,-310,-365,-415,-465,-520,-575,-640,-710,-790,-910,-1000,-1100,-1250,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],"ZA":[-32,-42,-52,-64,-77,-98,-118,-148,-180,-226,-274,-335,-400,-470,-535,-600,-670,-740,-820,-920,-1000,-1150,-1300,-1450,-1600,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],"ZB":[-40,-50,-67,-90,-108,-136,-160,-200,-242,-300,-360,-445,-525,-620,-700,-780,-880,-960,-1050,-1200,-1300,-1500,-1650,-1850,-2100,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],"ZC":[-60,-80,-97,-130,-150,-188,-218,-274,-325,-405,-480,-585,-690,-800,-900,-1000,-1150,-1250,-1350,-1550,-1700,-1900,-2100,-2400,-2600,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null]}};
+
+/* ================= 计算引擎 ================= */
+const HOLE_LETTERS = ["A","B","C","CD","D","E","EF","F","FG","G","H","JS","J","K","M","N","P","R","S","T","U","V","X","Y","Z","ZA","ZB","ZC"];
+const SHAFT_LETTERS = HOLE_LETTERS.map(function(s){ return s.toLowerCase(); });
+const CLEARANCE_LETTERS = ["a","b","c","cd","d","e","ef","f","fg","g","h"];
+
+function findRange(ranges, size){
+  for (let i = 0; i < ranges.length; i++){
+    if (size > ranges[i][0] && size <= ranges[i][1]) return i;
+  }
+  return -1;
+}
+function itValue(grade, size){
+  const i = findRange(DATA.itRanges, size);
+  if (i < 0) return null;
+  const v = DATA.it[grade - 1][i];
+  return (v === undefined) ? null : v;
+}
+function deltaValue(grade, ri){
+  const arr = DATA.delta[String(grade)];
+  if (!arr) return null;
+  const v = arr[ri];
+  return (v === undefined) ? null : v;
+}
+function jsHalf(grade, it){
+  // 公差带 JS/js 的偏差：±IT/2；JS7~JS11 若 ITn 为奇数取 ±(ITn-1)/2
+  if (grade >= 7 && grade <= 11 && it % 2 !== 0) return (it - 1) / 2;
+  return it / 2;
+}
+/* 轴极限偏差：返回 {es, ei} 或 null（无数据） */
+function shaftDeviation(letter, grade, size){
+  const ri = findRange(DATA.devRanges, size);
+  if (ri < 0) return null;
+  const it = itValue(grade, size);
+  if (it == null) return null;
+  const S = DATA.shaft;
+  let es, ei;
+  if (CLEARANCE_LETTERS.indexOf(letter) >= 0){
+    es = S[letter][ri];
+    if (es == null) return null;
+    ei = es - it;
+  } else if (letter === "j"){
+    // j5、j6 共用一列；其余等级按临近列取
+    let key;
+    if (grade <= 6) key = "j5";
+    else if (grade === 7) key = "j7";
+    else if (grade === 8) key = "j8";
+    else return null;
+    ei = S[key][ri];
+    if (ei == null) return null;
+    es = ei + it;
+  } else if (letter === "js"){
+    const h = jsHalf(grade, it);
+    es = h; ei = -h;
+  } else if (letter === "k"){
+    ei = (grade >= 4 && grade <= 7) ? S.k47[ri] : S.kold[ri];
+    if (ei == null) return null;
+    es = ei + it;
+  } else if (S[letter]){
+    ei = S[letter][ri];
+    if (ei == null) return null;
+    es = ei + it;
+  } else {
+    return null;
+  }
+  return { es: es, ei: ei };
+}
+/* 孔极限偏差：返回 {ES, EI} 或 null（无数据） */
+function holeDeviation(letter, grade, size){
+  const ri = findRange(DATA.devRanges, size);
+  if (ri < 0) return null;
+  const it = itValue(grade, size);
+  if (it == null) return null;
+  const H = DATA.hole;
+  let ES, EI;
+  if (["A","B","C","CD","D","E","EF","F","FG","G","H"].indexOf(letter) >= 0){
+    EI = H[letter][ri];
+    if (EI == null) return null;
+    return { ES: EI + it, EI: EI };
+  }
+  if (letter === "JS"){
+    const h = jsHalf(grade, it);
+    return { ES: h, EI: -h };
+  }
+  if (letter === "J"){
+    // J6/J7/J8 有独立数据；其余等级向邻近列取整
+    const key = grade <= 6 ? "J6" : (grade === 7 ? "J7" : "J8");
+    ES = H[key][ri];
+    if (ES == null) return null;
+    return { ES: ES, EI: ES - it };
+  }
+  if (letter === "K" || letter === "M" || letter === "N"){
+    const t = H[letter];
+    const over500 = DATA.devRanges[ri][0] >= 500;
+    if (grade <= 8){
+      ES = t.le[ri];
+      if (ES == null) return null;
+      if (!over500){
+        const d = deltaValue(grade, ri);
+        if (d != null) ES += d;
+      }
+      return { ES: ES, EI: ES - it };
+    }
+    if (over500){
+      if (letter === "K"){  // >500mm 时 K 仅规定到 IT8
+        ES = t.gt[ri];
+        if (ES == null) return null;
+        return { ES: ES, EI: ES - it };
+      }
+      ES = t.le[ri];       // M、N 在 >500mm 为单值（不分等级）
+      if (ES == null) return null;
+      return { ES: ES, EI: ES - it };
+    }
+    ES = t.gt[ri];
+    if (ES == null) return null;
+    return { ES: ES, EI: ES - it };
+  }
+  if (["P","R","S","T","U","V","X","Y","Z","ZA","ZB","ZC"].indexOf(letter) >= 0){
+    ES = H[letter][ri];
+    if (ES == null) return null;
+    const over500 = DATA.devRanges[ri][0] >= 500;
+    if (!over500 && grade <= 7){
+      const d = deltaValue(grade, ri);
+      if (d != null) ES += d;
+    }
+    return { ES: ES, EI: ES - it };
+  }
+  return null;
+}
+/* M6 特例：250~315mm 段 ES=-9μm（代替 -11μm） */
+(function(){
+  const orig = holeDeviation;
+  holeDeviation = function(letter, grade, size){
+    const r = orig(letter, grade, size);
+    if (letter === "M" && grade === 6 && size > 250 && size <= 315) return { ES: -9, EI: -9 - itValue(6, size) };
+    return r;
+  };
+})();
+/* 配合类别：过盈 / 间隙 / 过渡 */
+function fitType(hole, shaft){
+  if (hole.ES <= shaft.ei) return "过盈";
+  if (hole.EI >= shaft.es) return "间隙";
+  return "过渡";
+}
+/* μm -> mm 字符串（最多 4 位小数、去尾零、带符号、零为 "0"） */
+function fmtMM(um){
+  const mm = Math.round(um * 10) / 1e4;
+  if (mm === 0) return "0";
+  return (mm > 0 ? "+" : "") + String(mm);
+}
+/* 完整计算：返回 {ok, errors, hole, shaft, fitName, msgs, sizeText, holeText, shaftText} */
+function calcFit(sizeText, holeCode, holeGrade, shaftCode, shaftGrade){
+  const out = { ok: false, errors: [], hole: null, shaft: null, fitName: null, msgs: [], sizeText: String(sizeText), holeText: "", shaftText: "" };
+  const sizeRaw = String(sizeText == null ? "" : sizeText).trim();
+  const size = Number(sizeRaw);
+  if (sizeRaw === "" || isNaN(size)){
+    out.errors.push("请输入基本尺寸");
+  } else if (size <= 0 || size > 3150){
+    out.errors.push("本查询只限于0到3150之间的基本尺寸");
+  }
+  const hc = String(holeCode || "").trim().toUpperCase();
+  if (!/^[A-Z]{1,2}$/.test(hc) || HOLE_LETTERS.indexOf(hc) < 0){
+    out.errors.push("请输入A-Z之间的字母作为孔公差带");
+  }
+  const hg = Number(String(holeGrade == null ? "" : holeGrade).trim());
+  const sg = Number(String(shaftGrade == null ? "" : shaftGrade).trim());
+  if (!/^\d+$/.test(String(holeGrade).trim()) || hg < 1 || hg > 18){
+    out.errors.push("请输入1-18之间的整数");
+  }
+  const sc = String(shaftCode || "").trim().toLowerCase();
+  if (!/^[a-z]{1,2}$/.test(sc) || SHAFT_LETTERS.indexOf(sc) < 0){
+    out.errors.push("请输入a-z之间的字母作为轴公差带");
+  }
+  if (!/^\d+$/.test(String(shaftGrade).trim()) || sg < 1 || sg > 18){
+    if (out.errors.indexOf("请输入1-18之间的整数") < 0) out.errors.push("请输入1-18之间的整数");
+  }
+  if (out.errors.length) return out;
+  out.sizeText = String(sizeText).trim();
+  out.holeText = hc + hg;
+  out.shaftText = sc + sg;
+  out.hole = holeDeviation(hc, hg, size);
+  out.shaft = shaftDeviation(sc, sg, size);
+  if (out.hole) { out.hole.ESstr = fmtMM(out.hole.ES); out.hole.EIstr = fmtMM(out.hole.EI); }
+  if (out.shaft){ out.shaft.esStr = fmtMM(out.shaft.es); out.shaft.eiStr = fmtMM(out.shaft.ei); }
+  if (!out.hole) out.msgs.push("孔:查询结果为空值!");
+  if (!out.shaft) out.msgs.push("轴:查询结果为空值!");
+  if (out.hole && out.shaft){
+    out.fitName = fitType(out.hole, out.shaft);
+    out.msgs.push("该配合为" + out.fitName + "配合！");
+  }
+  out.ok = true;
+  return out;
+}
+
+/* ================= 页面交互 ================= */
+const $ = function(id){ return document.getElementById(id); };
+const dim = $("basicDim"), holeCodeEl = $("inputHoleToleranceCode"), holeGradeEl = $("inputHoleToleranceGrade"),
+      shaftCodeEl = $("inputShaftToleranceCode"), shaftGradeEl = $("inputShaftToleranceGrade");
+const resSize = $("basicDimRes"), resHole = $("holeToleranceCodeandGradeRes"), resShaft = $("shaftToleranceCodeandGradeRes"),
+      resHUp = $("holeUpperDeviation"), resHLo = $("holeLowerDeviation"), resSUp = $("shaftUpperDeviation"), resSLo = $("shaftLowerDeviation"),
+      errInfo = $("errorInfo"), errMsg = $("errorMsg");
+
+/* 键盘按钮初始 aria 状态 */
+document.querySelectorAll(".kb-btn").forEach(function(btn){ btn.setAttribute("aria-pressed", "false"); });
+
+function clearKeyboardSelection(){
+  document.querySelectorAll(".kb-btn.selected").forEach(function(active){
+    active.classList.remove("selected");
+    active.setAttribute("aria-pressed", "false");
+    active.removeAttribute("aria-label");
+  });
+}
+function renderResult(r){
+  resSize.textContent = r.sizeText;
+  resHole.textContent = r.holeText;
+  resShaft.textContent = r.shaftText;
+  resHUp.textContent = r.hole ? r.hole.ESstr : "—";
+  resHLo.textContent = r.hole ? r.hole.EIstr : "—";
+  resSUp.textContent = r.shaft ? r.shaft.esStr : "—";
+  resSLo.textContent = r.shaft ? r.shaft.eiStr : "—";
+  const fitLabels = {"间隙":"clearance", "过渡":"transition", "过盈":"interference"};
+  const badge = $("fitClassification");
+  badge.textContent = r.fitName ? r.fitName + "配合" : "无法判定";
+  badge.dataset.fit = r.fitName ? fitLabels[r.fitName] : "unknown";
+  $("resultEmpty").hidden = true;
+  $("result").hidden = false;
+  $("copyRes").disabled = !(r.hole && r.shaft);
+}
+function clearResult(){
+  resSize.textContent = ""; resHole.textContent = ""; resShaft.textContent = "";
+  resHUp.textContent = ""; resHLo.textContent = ""; resSUp.textContent = ""; resSLo.textContent = "";
+  const badge = $("fitClassification");
+  badge.textContent = "—";
+  badge.dataset.fit = "unknown";
+  $("result").hidden = true;
+  $("resultEmpty").hidden = false;
+  $("copyRes").disabled = true;
+  $("copyHint").textContent = "";
+}
+function doQuery(){
+  const r = calcFit(dim.value, holeCodeEl.value, holeGradeEl.value, shaftCodeEl.value, shaftGradeEl.value);
+  if (r.errors.length){
+    clearResult();
+    errInfo.textContent = r.errors[0];
+    errMsg.textContent = r.errors.slice(1).join("；");
+    return r;
+  }
+  errInfo.textContent = "";
+  renderResult(r);
+  errMsg.textContent = (r.hole && r.shaft) ? "" : r.msgs.join(" ");
+  return r;
+}
+function autoQueryFromInputs(){
+  clearKeyboardSelection();
+  errInfo.textContent = "";
+  errMsg.textContent = "";
+  const values = [dim, holeCodeEl, holeGradeEl, shaftCodeEl, shaftGradeEl].map(function(input){
+    return String(input.value == null ? "" : input.value).trim();
+  });
+  if (values.some(function(value){ return value === ""; })){
+    clearResult();
+    return;
+  }
+  doQuery();
+}
+[dim, holeCodeEl, holeGradeEl, shaftCodeEl, shaftGradeEl].forEach(function(input){
+  input.addEventListener("input", autoQueryFromInputs);
+});
+
+/* 基准制切换：显示对应键盘 + 重置默认值 */
+function setBenchmark(system, resetValues){
+  const holeSys = system === "hole";
+  $("basicHoleSystem").checked = holeSys;
+  $("basicShaftSystem").checked = !holeSys;
+  $("basicHoleSystem").closest(".system-option").classList.toggle("selected", holeSys);
+  $("basicShaftSystem").closest(".system-option").classList.toggle("selected", !holeSys);
+  $("fitKeyboardWrapper").hidden = !holeSys;
+  $("shaftFitKeyboardWrapper").hidden = holeSys;
+  if (resetValues){
+    holeCodeEl.value = holeSys ? "H" : "";
+    holeGradeEl.value = "6";
+    shaftCodeEl.value = holeSys ? "" : "h";
+    shaftGradeEl.value = "5";
+    clearKeyboardSelection();
+    clearResult();
+    errInfo.textContent = "";
+    errMsg.textContent = "";
+  }
+}
+$("basicHoleSystem").addEventListener("change", function(){ setBenchmark("hole", true); });
+$("basicShaftSystem").addEventListener("change", function(){ setBenchmark("shaft", true); });
+
+/* 键盘点击 */
+function onKbClick(btn){
+  const fit = btn.getAttribute("data-fit") || "";
+  const bench = btn.closest("#shaftFitKeyboardWrapper") ? "shaft" : "hole";
+  setBenchmark(bench, false);
+  const hg = btn.getAttribute("data-hole-grade"), sg = btn.getAttribute("data-shaft-grade");
+  if (bench === "hole"){
+    holeCodeEl.value = "H";
+    holeGradeEl.value = hg;
+    shaftCodeEl.value = btn.getAttribute("data-shaft-code");
+    shaftGradeEl.value = sg;
+  } else {
+    shaftCodeEl.value = "h";
+    shaftGradeEl.value = sg;
+    holeCodeEl.value = btn.getAttribute("data-hole-code");
+    holeGradeEl.value = hg;
+  }
+  clearKeyboardSelection();
+  btn.classList.add("selected");
+  btn.setAttribute("aria-pressed", "true");
+  const fitNames = {clearance:"间隙", transition:"过渡", interference:"过盈"};
+  btn.setAttribute("aria-label", "选择 " + holeCodeEl.value + holeGradeEl.value + " / " + shaftCodeEl.value + shaftGradeEl.value + "，" + (fitNames[fit] || "") + "配合");
+  doQuery();   /* 导入后自动查询 */
+}
+document.addEventListener("click", function(e){
+  const btn = e.target.closest ? e.target.closest(".kb-btn") : null;
+  if (btn) onKbClick(btn);
+});
+/* 按钮 */
+$("queryForm").addEventListener("submit", function(event){
+  event.preventDefault();
+  doQuery();
+});
+$("copyRes").addEventListener("click", function(){
+  if (this.disabled) return;
+  const text = [
+    "基本尺寸：" + resSize.textContent + " mm",
+    "配合性质：" + $("fitClassification").textContent,
+    "孔 " + resHole.textContent + "：ES " + resHUp.textContent + " mm；EI " + resHLo.textContent + " mm",
+    "轴 " + resShaft.textContent + "：es " + resSUp.textContent + " mm；ei " + resSLo.textContent + " mm"
+  ].join("\n");
+  const done = function(){
+    const hint = $("copyHint");
+    hint.textContent = "计算结果已复制";
+    setTimeout(function(){ hint.textContent = ""; }, 1800);
+  };
+  if (navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(text).then(done, function(){ fallbackCopy(text, done); });
+  } else {
+    fallbackCopy(text, done);
+  }
+});
+function fallbackCopy(text, done){
+  const ta = document.createElement("textarea");
+  ta.value = text; ta.style.position = "fixed"; ta.style.opacity = "0";
+  document.body.appendChild(ta); ta.select();
+  try { document.execCommand("copy"); done(); } catch(e){}
+  document.body.removeChild(ta);
+}
+/* ================= 常用值下拉（点击输入框展开的常用值面板） ================= */
+const HOLE_CODE_OPTIONS = ["H","G","F","E","D","JS","K","M","N","P","R","S","T","U","V","X","Y","Z","ZA","ZB","ZC","J","A","B","C","CD","EF","FG"];
+const SHAFT_CODE_OPTIONS = ["h","g","f","e","d","js","k","m","n","p","r","s","t","u","v","x","y","z","za","zb","zc","j","a","b","c","cd","ef","fg"];
+const GRADE_OPTIONS = ["5","6","7","8","9","10","11","12"];
+
+function makeCombo(input, options, menuClass){
+  const wrap = document.createElement("div");
+  wrap.className = "combo";
+  input.parentNode.insertBefore(wrap, input);
+  wrap.appendChild(input);
+
+  const category = input.id.indexOf("Hole") >= 0 ? "孔" : (input.id.indexOf("Shaft") >= 0 ? "轴" : "");
+  const kind = input.type === "number" ? "公差等级" : "公差代号";
+  const toggle = document.createElement("button");
+  toggle.type = "button";
+  toggle.className = "combo-toggle";
+  toggle.setAttribute("aria-label", "展开" + category + kind + "常用值");
+  toggle.setAttribute("aria-expanded", "false");
+  wrap.appendChild(toggle);
+
+  const menu = document.createElement("div");
+  menu.id = input.id + "-options";
+  menu.className = "combo-menu" + (menuClass ? " " + menuClass : "");
+  menu.setAttribute("role", "group");
+  menu.setAttribute("aria-label", category + kind + "常用值");
+  menu.hidden = true;
+  wrap.appendChild(menu);
+  toggle.setAttribute("aria-controls", menu.id);
+
+  function setExpanded(expanded){
+    toggle.setAttribute("aria-expanded", String(expanded));
+    wrap.classList.toggle("open", expanded);
+  }
+  function close(){ setExpanded(false); menu.hidden = true; }
+  function render(filter){
+    const f = String(filter || "").trim().toLowerCase();
+    menu.innerHTML = "";
+    const list = f ? options.filter(function(o){ return o.toLowerCase().indexOf(f) === 0; }) : options;
+    if (!list.length){
+      const empty = document.createElement("div");
+      empty.className = "combo-empty";
+      empty.textContent = "无匹配项，可直接输入";
+      menu.appendChild(empty);
+    } else {
+      for (let i = 0; i < list.length; i++){
+        (function(opt){
+          const item = document.createElement("button");
+          item.type = "button";
+          item.className = "combo-option";
+          item.textContent = opt;
+          if (String(input.value).trim().toLowerCase() === opt.toLowerCase()) item.classList.add("active");
+          item.addEventListener("mousedown", function(e){ e.preventDefault(); });
+          item.addEventListener("click", function(e){
+            e.preventDefault();
+            input.value = opt;
+            input.dispatchEvent(new Event("input", { bubbles: true }));
+            close();
+            input.focus();
+          });
+          menu.appendChild(item);
+        })(list[i]);
+      }
+    }
+  }
+  function open(filter){
+    menu.hidden = false;
+    setExpanded(true);
+    render(filter);
+  }
+
+  toggle.addEventListener("click", function(e){
+    e.preventDefault();
+    if (menu.hidden) open(""); else close();
+  });
+  input.addEventListener("click", function(){ if (menu.hidden) open(""); });
+  input.addEventListener("input", function(){
+    if (menu.hidden) open(input.value || "");
+    else render(input.value || "");
+  });
+  input.addEventListener("keydown", function(e){
+    if (e.key === "Escape") close();
+    else if (e.key === "ArrowDown"){
+      e.preventDefault();
+      if (menu.hidden) open("");
+      const first = menu.querySelector(".combo-option");
+      if (first) first.focus();
+    }
+  });
+  /* 菜单内的键盘操作：Esc 关闭并回到输入框，↑/↓ 循环移动，Home/End 到首尾 */
+  menu.addEventListener("keydown", function(e){
+    const options = Array.prototype.slice.call(menu.querySelectorAll(".combo-option"));
+    if (!options.length) return;
+    const idx = options.indexOf(document.activeElement);
+    if (e.key === "Escape"){
+      e.preventDefault();
+      close();
+      input.focus();
+    } else if (e.key === "ArrowDown"){
+      e.preventDefault();
+      options[(idx + 1 + options.length) % options.length].focus();
+    } else if (e.key === "ArrowUp"){
+      e.preventDefault();
+      options[(idx - 1 + options.length) % options.length].focus();
+    } else if (e.key === "Home"){
+      e.preventDefault();
+      options[0].focus();
+    } else if (e.key === "End"){
+      e.preventDefault();
+      options[options.length - 1].focus();
+    }
+  });
+  document.addEventListener("mousedown", function(e){
+    if (!wrap.contains(e.target)) close();
+  });
+}
+makeCombo($("inputHoleToleranceCode"), HOLE_CODE_OPTIONS);
+makeCombo($("inputShaftToleranceCode"), SHAFT_CODE_OPTIONS);
+makeCombo($("inputHoleToleranceGrade"), GRADE_OPTIONS, "grades");
+makeCombo($("inputShaftToleranceGrade"), GRADE_OPTIONS, "grades");
+
+/* 初始状态 */
+setBenchmark("hole", true);
+</script>
+</body>
+</html>
