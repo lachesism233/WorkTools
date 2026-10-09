@@ -9,6 +9,7 @@
 | 工具 | 在线地址 | 说明 |
 | --- | --- | --- |
 | 配合查询 | <https://lachesism233.github.io/WorkTools/peihe-chaxun/> | 依据 GB/T 1800 查询孔轴极限偏差与配合性质，支持基孔制、基轴制与优先配合键盘 |
+| 形位公差等级速查 | <https://lachesism233.github.io/WorkTools/gdt-dengji-chaxun/> | 依据 GB/T 1184-1996 查询形位公差等级值（μm）与未注公差值 H/K/L（mm），输入参考尺寸自动落段 |
 
 ## 目录结构
 
@@ -17,6 +18,8 @@
 ```
 index.html            工具站首页（导航卡片）
 peihe-chaxun/         配合查询
+  └── index.html
+gdt-dengji-chaxun/    形位公差等级速查
   └── index.html
 .nojekyll             跳过 Jekyll 处理（GitHub Pages 纯静态发布）
 ```

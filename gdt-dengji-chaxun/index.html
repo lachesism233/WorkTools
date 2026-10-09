@@ -1,0 +1,641 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="依据 GB/T 1184-1996 的形位公差等级速查工具：输入参考尺寸，得出直线度、平面度、圆度、圆柱度、平行度、垂直度、倾斜度、同轴度、对称度、跳动等各等级公差数值（μm），并提供未注公差 H/K/L 值与查表主参数对照。">
+<meta name="theme-color" content="#203a47">
+<title>形位公差等级速查 | GB/T 1184-1996</title>
+<style>
+:root {
+  color-scheme: light;
+  --page: #edf1f3;
+  --surface: #ffffff;
+  --surface-soft: #f7f9fa;
+  --ink: #202e36;
+  --ink-soft: #3f5059;
+  --muted: #5d6f77;
+  --line: #d4dde1;
+  --line-dark: #b5c3ca;
+  --header: #203a47;
+  --accent: #23677e;
+  --accent-dark: #174d61;
+  --accent-soft: #e5eff2;
+  --missing: #b65a35;
+  --missing-soft: #fff7f1;
+  --focus: rgba(35, 103, 126, .22);
+  --mono: "Cascadia Code", "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+  --sans: Inter, "Segoe UI", "Microsoft YaHei", "PingFang SC", Arial, sans-serif;
+  --header-height: 54px;
+}
+
+* { box-sizing: border-box; }
+html { min-width: 320px; scroll-behavior: smooth; }
+body { margin: 0; color: var(--ink); background: var(--page); font: 14px/1.5 var(--sans); -webkit-font-smoothing: antialiased; }
+button, input { font: inherit; }
+button { color: inherit; }
+button:focus-visible, input:focus-visible, summary:focus-visible, label:has(input:focus-visible) { outline: 3px solid var(--focus); outline-offset: 2px; }
+[hidden] { display: none !important; }
+.site-shell { width: min(1440px, calc(100% - 32px)); margin-inline: auto; }
+
+.site-header { position: sticky; top: 0; z-index: 120; height: var(--header-height); color: #f5f8f9; background: var(--header); border-bottom: 1px solid #3c5763; }
+.header-inner { height: 100%; display: flex; align-items: center; justify-content: space-between; gap: 14px; }
+.brand { display: inline-flex; align-items: center; gap: 10px; color: inherit; text-decoration: none; }
+.brand-mark { width: 30px; height: 30px; display: grid; place-items: center; color: #b9d1d9; border: 1px solid #607a84; }
+.brand-mark svg { width: 20px; height: 20px; display: block; }
+.brand-name { font-size: 14px; font-weight: 650; letter-spacing: .04em; }
+.header-home { display: inline-flex; align-items: center; gap: 5px; padding: 6px 0; color: #d8e1e4; font-size: 12px; letter-spacing: .02em; text-decoration: none; transition: color .14s ease; }
+.header-home svg { width: 12px; height: 12px; display: block; }
+.header-home:hover { color: #ffffff; }
+.header-home:focus-visible { outline: 2px solid #b9d1d9; outline-offset: 3px; }
+
+main { padding-top: 12px; padding-bottom: 16px; }
+.page-heading { margin-bottom: 14px; }
+.page-heading h1 { margin: 0; color: var(--ink); font-size: 27px; font-weight: 650; line-height: 1.2; letter-spacing: -.035em; }
+.page-heading p { margin: 3px 0 0; color: var(--muted); font-size: 14px; }
+
+.workspace-grid { display: grid; grid-template-columns: minmax(300px, 350px) minmax(0, 1fr); gap: 14px; }
+.left-column { min-width: 0; }
+.panel { min-width: 0; background: var(--surface); border: 1px solid var(--line); border-radius: 5px; }
+
+.left-sticky { position: sticky; top: calc(var(--header-height) + 10px); }
+.input-output-panel { display: flex; flex-direction: column; }
+.calculator-panel { padding: 17px 18px 15px; }
+.dimension-row { display: grid; gap: 5px; margin-bottom: 12px; }
+.field-label { display: block; color: var(--ink-soft); font-size: 14px; font-weight: 650; }
+.dimension-control { position: relative; width: 100%; }
+#mainSize { height: 42px; padding: 0 48px 0 11px; font-family: var(--mono); font-size: 16px; }
+#mainSize::placeholder { color: #7a898f; font-size: 14px; }
+#mainSize:placeholder-shown:not(:focus) { background: var(--missing-soft); border: 1.5px dashed var(--missing); }
+.unit-suffix { position: absolute; top: 50%; right: 11px; transform: translateY(-50%); color: var(--muted); font-family: var(--mono); font-size: 12px; pointer-events: none; }
+.input-hint { margin: 0; padding: 10px 12px; color: var(--muted); background: var(--surface-soft); border: 1px solid var(--line); border-radius: 4px; font-size: 12px; line-height: 1.7; }
+.input-hint b { color: var(--ink-soft); font-weight: 650; }
+
+.result-panel { display: flex; flex-direction: column; gap: 8px; padding: 13px 18px 16px; background: #fafcfc; border-top: 1px solid var(--line); }
+.result-heading { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; }
+.result-heading h2 { margin: 0; color: var(--ink-soft); font-size: 14px; font-weight: 650; }
+.result-unit { color: var(--muted); font-size: 11px; }
+.segment-list { display: grid; gap: 6px; margin: 0; padding: 0; list-style: none; }
+.segment-item { display: grid; gap: 1px; padding: 6px 10px; background: #fff; border: 1px solid var(--line); border-radius: 4px; }
+.segment-item span { color: var(--muted); font-size: 11.5px; }
+.segment-item b { color: var(--accent-dark); font-family: var(--mono); font-size: 13px; font-weight: 650; }
+.segment-item.miss b { color: var(--missing); }
+.segment-item.empty b { color: var(--muted); font-weight: 550; }
+
+input[type="number"] { width: 100%; height: 36px; padding: 0 9px; color: var(--ink); background: #fff; border: 1px solid var(--line-dark); border-radius: 4px; font-size: 14px; transition: border-color .14s ease, box-shadow .14s ease; }
+input[type="number"]:hover { border-color: #8198a2; }
+input[type="number"]:focus { outline: 0; border-color: var(--accent); box-shadow: 0 0 0 2px var(--focus); }
+input[type="number"]::-webkit-outer-spin-button, input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+input[type="number"] { -moz-appearance: textfield; appearance: textfield; }
+
+.results-column { min-width: 0; display: grid; gap: 13px; align-content: start; }
+.section-head h2 { margin: 0 0 3px; color: var(--ink); font-size: 17px; font-weight: 650; letter-spacing: -.01em; }
+.section-head p { margin: 0; color: var(--muted); font-size: 12.5px; line-height: 1.7; }
+.section-head p b { color: var(--ink-soft); font-weight: 650; }
+
+.grade-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(360px, 1fr)); gap: 12px; }
+.grade-card { display: flex; flex-direction: column; padding: 15px 16px 14px; }
+.grade-card-head { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; }
+.grade-card-head h2 { margin: 0; color: var(--ink); font-size: 16px; font-weight: 650; letter-spacing: -.01em; }
+.param-tag { flex: 0 0 auto; padding: 2px 7px 3px; color: var(--accent-dark); background: var(--accent-soft); border: 1px solid #c3d5db; border-radius: 3px; font-family: var(--mono); font-size: 11px; font-weight: 650; }
+.grade-card-note { margin: 4px 0 10px; color: var(--muted); font-size: 12px; line-height: 1.65; }
+.hit-badge { align-self: flex-start; margin-bottom: 9px; padding: 3px 9px; color: #1e5568; background: var(--accent-soft); border: 1px solid #8aadb9; border-radius: 3px; font-family: var(--mono); font-size: 12px; font-weight: 650; }
+.hit-badge.none { color: #8c4a2c; background: var(--missing-soft); border-color: #d8a58d; font-family: var(--sans); font-weight: 550; }
+.chips { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-bottom: 10px; }
+.chip { min-width: 0; padding: 6px 4px 5px; background: var(--accent-soft); border: 1px solid #bdd3da; border-radius: 4px; text-align: center; }
+.chip b { display: block; margin-bottom: 1px; color: var(--accent); font-size: 11px; font-weight: 650; }
+.chip span { display: block; color: var(--accent-dark); font-family: var(--mono); font-size: 14px; font-weight: 650; line-height: 1.3; }
+.chip.alt { background: #f1f4f5; border-color: var(--line); }
+.chip.alt b { color: var(--muted); }
+.chip.alt span { color: var(--ink); }
+.chip[title] { cursor: help; }
+.chip.warn { grid-column: 1 / -1; background: var(--missing-soft); border-color: #e3bda5; }
+.chip.warn b { color: var(--missing); }
+.chip.warn span { color: #8c4a2c; font-family: var(--sans); font-size: 12.5px; font-weight: 550; }
+
+.quick { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 6px; }
+.qitem { padding: 3px 8px; color: var(--muted); background: var(--surface-soft); border: 1px solid var(--line); border-radius: 3px; font-size: 11px; }
+.qitem b { margin-right: 5px; color: var(--accent-dark); font-weight: 650; }
+
+.grade-card > details { margin-top: 4px; border-top: 1px solid #e8eef0; }
+.grade-card summary { width: max-content; padding: 7px 0 1px; color: var(--accent); font-size: 12.5px; font-weight: 600; cursor: pointer; }
+.grade-card summary:hover { color: var(--accent-dark); }
+
+.table-wrap { overflow: auto; margin: 7px 0 2px; border: 1px solid var(--line); border-radius: 3px; scrollbar-color: #a5b6bd #eef2f4; scrollbar-width: thin; }
+.data-table { width: 100%; border-collapse: separate; border-spacing: 0; background: #fff; font-size: 11.5px; }
+.data-table th, .data-table td { border-right: 1px solid #edf0f2; border-bottom: 1px solid #edf0f2; padding: 4px 7px; text-align: center; }
+.data-table tr > *:last-child { border-right: 0; }
+.data-table tbody tr:last-child > * { border-bottom: 0; }
+.data-table thead th { position: sticky; top: 0; z-index: 2; color: var(--ink-soft); background: #f0f4f5; font-weight: 650; }
+
+.full-table { white-space: nowrap; }
+.full-table th, .full-table td { min-width: 40px; }
+.full-table td:first-child { position: sticky; left: 0; z-index: 1; color: var(--ink-soft); background: #f5f8f9; font-family: var(--mono); font-weight: 600; }
+.full-table thead th:first-child { z-index: 3; background: #eaf0f2; }
+.full-table tr.hl td { color: var(--accent-dark); background: var(--accent-soft); font-weight: 650; }
+.full-table tr.hl td:first-child { background: #d5e6eb; }
+
+.usage-table th, .usage-table td { padding: 5px 9px; text-align: left; vertical-align: top; line-height: 1.65; }
+.usage-table td:first-child { width: 70px; white-space: nowrap; font-weight: 650; color: var(--ink-soft); background: #fafcfc; }
+
+.unoted-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 12px; }
+.ucard { padding: 12px 14px 13px; }
+.ucard h3 { margin: 0; color: var(--ink); font-size: 14px; font-weight: 650; }
+.ucard .usub { margin: 2px 0 9px; color: var(--muted); font-size: 11.5px; line-height: 1.6; }
+.ucard input[type="number"] { height: 36px; margin-bottom: 9px; text-align: center; font-family: var(--mono); }
+.uval { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+
+.rules-panel { padding: 12px 14px 13px; }
+.rules-panel .table-wrap { margin: 0; }
+.rules-table th, .rules-table td { padding: 5px 9px; text-align: left; vertical-align: top; }
+.rules-table td:first-child { width: 110px; white-space: nowrap; font-weight: 650; color: var(--ink-soft); background: #fafcfc; }
+.rules-table td:nth-child(2) { font-family: var(--mono); font-weight: 650; color: var(--accent-dark); white-space: nowrap; }
+
+footer { margin-top: 14px; color: var(--muted); font-size: 12px; }
+footer > details { border-top: 1px solid var(--line-dark); }
+footer > details > summary { width: max-content; padding: 9px 0 3px; color: var(--ink-soft); font-size: 13px; font-weight: 650; cursor: pointer; }
+footer .notes-overview { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; padding: 8px 0; }
+footer .notes-overview section { padding: 11px 13px; background: #fff; border: 1px solid var(--line); border-radius: 4px; }
+footer .notes-overview h3 { margin: 0 0 5px; color: var(--ink-soft); font-size: 12px; }
+footer .notes-overview p { margin: 0; line-height: 1.65; }
+footer .guide-list { display: grid; gap: 8px; padding: 2px 0 12px; }
+footer .guide { overflow: hidden; background: #fff; border: 1px solid var(--line); border-radius: 4px; }
+footer .guide > summary { padding: 9px 12px; color: var(--ink-soft); font-size: 13px; font-weight: 650; cursor: pointer; }
+footer .guide[open] > summary { border-bottom: 1px solid var(--line); }
+footer .guide-body { padding: 11px 14px 13px; color: var(--ink-soft); line-height: 1.75; }
+footer .guide-body p { margin: 0 0 8px; }
+footer .guide-body p:last-child { margin-bottom: 0; }
+footer .guide-body ol { margin: 0; padding-left: 22px; }
+footer .guide-body li + li { margin-top: 6px; }
+footer strong, footer b { color: var(--ink-soft); font-weight: 650; }
+
+@media (max-width: 1000px) {
+  .site-shell { width: min(100% - 24px, 1440px); }
+  .workspace-grid { grid-template-columns: minmax(270px, 300px) minmax(0, 1fr); gap: 10px; }
+  .calculator-panel { padding: 14px; }
+  .result-panel { padding: 13px 14px 15px; }
+  .grade-grid, .unoted-grid { gap: 10px; }
+  footer .notes-overview { grid-template-columns: 1fr; }
+}
+@media (max-width: 650px) {
+  .site-shell { width: calc(100% - 20px); }
+  .header-home { font-size: 11px; }
+  main { padding-top: 9px; }
+  .page-heading { margin-bottom: 10px; }
+  .page-heading h1 { font-size: 24px; }
+  .page-heading p { font-size: 12px; }
+  .workspace-grid { grid-template-columns: 1fr; gap: 10px; }
+  .left-sticky { position: static; }
+  .grade-grid { grid-template-columns: 1fr; }
+  .grade-card { padding: 13px 14px 12px; }
+  .section-head h2 { font-size: 16px; }
+  .chips { gap: 5px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; }
+}
+</style>
+</head>
+<body>
+<header class="site-header">
+  <div class="site-shell header-inner">
+    <span class="brand"><span class="brand-mark" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square"><path d="M5.5 6.5h13"/><path d="M8.5 10.8h10l-3 6.9h-10z"/></svg></span><span class="brand-name">形位公差</span></span>
+    <a class="header-home" href="../"><svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M9.5 3.5 5 8l4.5 4.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>返回首页</a>
+  </div>
+</header>
+
+<main id="top" class="site-shell">
+  <div class="workspace-grid">
+    <div class="left-column">
+      <div class="left-sticky">
+        <div class="page-heading"><h1>形位公差等级速查</h1><p>GB/T 1184-1996 等级值与未注公差</p></div>
+
+        <section class="panel input-output-panel" aria-label="参考尺寸与落段结果">
+          <section class="calculator-panel" aria-label="参考尺寸输入">
+            <div class="dimension-row">
+              <label class="field-label" for="mainSize">参考尺寸</label>
+              <div class="dimension-control">
+                <input id="mainSize" type="number" inputmode="decimal" step="any" min="0" value="60" placeholder="输入参考尺寸" aria-required="true">
+                <span class="unit-suffix">mm</span>
+              </div>
+            </div>
+            <p class="input-hint">填入<b>被测要素</b>的参考尺寸：线性要素（面/线）填长度 <b>L</b>，回转要素（轴/孔）填直径 <b>d(D)</b>，对称中心要素填宽度 <b>B</b> 或长度 <b>L</b>。四张等级表同时按该值落段。</p>
+          </section>
+
+          <section class="result-panel" aria-labelledby="segmentTitle">
+            <div class="result-heading"><h2 id="segmentTitle">命中分段</h2><span class="result-unit">单位 mm</span></div>
+            <ul class="segment-list" id="segmentList">
+              <li class="segment-item empty" data-table="t1"><span>表B1 直线度 / 平面度</span><b>—</b></li>
+              <li class="segment-item empty" data-table="t2"><span>表B2 圆度 / 圆柱度</span><b>—</b></li>
+              <li class="segment-item empty" data-table="t3"><span>表B3 平行度 / 垂直度 / 倾斜度</span><b>—</b></li>
+              <li class="segment-item empty" data-table="t4"><span>表B4 同轴度 / 对称度 / 跳动</span><b>—</b></li>
+            </ul>
+          </section>
+        </section>
+      </div>
+    </div>
+
+    <div class="results-column">
+      <section class="section-head">
+        <h2>等级值表（GB/T 1184-1996 附录B，单位 μm）</h2>
+        <p>输入参考尺寸后四张表同时落段；鼠标悬停各等级数值块可查看该等级适用情况。</p>
+      </section>
+      <div class="grade-grid" id="gradeGrid"></div>
+
+      <section class="section-head">
+        <h2>未注公差值（表1~4，单位 mm，等级 H / K / L）</h2>
+        <p>垂直度、对称度按两要素中<b>较短者</b>查表（较长者作基准）；直线度按线长、平面度按表面较长一侧。平行度、圆度等不查表（见页脚）。</p>
+      </section>
+      <div class="unoted-grid">
+        <section class="panel ucard">
+          <h3>直线度 / 平面度</h3>
+          <p class="usub">按主输入的参考尺寸落段（平面度取表面较长一侧）</p>
+          <div class="uval" id="uLine"></div>
+        </section>
+        <section class="panel ucard">
+          <h3>垂直度（按短边）</h3>
+          <p class="usub">直角两边中较短的一边（长边作基准）</p>
+          <input type="number" id="shortSize" value="60" min="0" step="any" inputmode="decimal" aria-label="垂直度按短边参考尺寸，单位 mm">
+          <div class="uval" id="uPerp"></div>
+        </section>
+        <section class="panel ucard">
+          <h3>对称度（按较短要素）</h3>
+          <p class="usub">两要素中较短者（较长者作基准）；短边尺寸见“垂直度”卡。</p>
+          <div class="uval" id="uSymm"></div>
+        </section>
+        <section class="panel ucard">
+          <h3>圆跳动（不分尺寸）</h3>
+          <p class="usub">径向 / 端面 / 斜向圆跳动通用</p>
+          <div class="uval" id="uRun"></div>
+        </section>
+      </div>
+
+      <section class="section-head">
+        <h2>附：各形位公差项目的查表参考尺寸（主参数）</h2>
+      </section>
+      <section class="panel rules-panel">
+        <div class="table-wrap">
+          <table class="data-table rules-table">
+            <thead><tr><th>形位公差项目</th><th>主参数</th><th>取自哪里</th></tr></thead>
+            <tbody id="rulesBody"></tbody>
+          </table>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <footer>
+    <details>
+      <summary>标准、使用说明与等级选取</summary>
+      <div class="notes-overview">
+        <section>
+          <h3>标准与范围</h3>
+          <p>数据依据 GB/T 1184-1996《形状和位置公差 未注公差值》附录B 表B1~B4（等级值，单位 μm）与表1~4（未注公差值，单位 mm）整理；等级适用情况摘自机械设计手册“形位公差等级应用举例”（经嘉立创FA机械设计手册镜像核对）。等级值表覆盖主参数至 10000 mm（表B2 至 500 mm），未注公差值至 3000 mm。</p>
+        </section>
+        <section>
+          <h3>使用方式</h3>
+          <p>在左侧填写被测要素的参考尺寸：线性要素（面/线）填长度 L，回转要素（轴/孔）填直径 d(D)，对称中心要素填宽度 B 或长度 L；四张等级表同时按该值落段。未注公差值按主输入与短边尺寸分别落段，鼠标悬停各等级数值块可查看该等级适用情况。</p>
+        </section>
+        <section>
+          <h3>结果与注意</h3>
+          <p>等级值单位为 μm，未注公差值单位为 mm；卡片提示“超出范围”时表示该表不覆盖所填尺寸。本工具供学习参考，工程应用请以标准正文和校核为准。</p>
+        </section>
+      </div>
+      <div class="guide-list">
+        <details class="guide">
+          <summary>未注公差的特殊规则</summary>
+          <div class="guide-body">
+            <p><strong>未注公差的特殊规则：</strong>平行度未注值 = 该处尺寸公差值 与 直线度/平面度未注值 中的较大者；圆度未注值 = 该处直径公差值（不大于径向圆跳动值）；圆柱度、同轴度、倾斜度、位置度、轮廓度未规定未注值。</p>
+            <p><strong>不查等级表的项：</strong>位置度、线轮廓度、面轮廓度——按功能要求或配合公差换算；同轴度无未注值规定（极限情况可等于径向圆跳动未注值）。</p>
+          </div>
+        </details>
+        <details class="guide">
+          <summary>取值关系参考</summary>
+          <div class="guide-body">
+            <p>形状公差 &lt; 方向公差 &lt; 位置/跳动公差；平面度 ≈ (1/3~1/2)×平行度；平行度/垂直度 ≈ (1/3~1/2)×位置度；形位公差通常取对应尺寸公差的 50%~70%。</p>
+          </div>
+        </details>
+        <details class="guide">
+          <summary>等级选用要点</summary>
+          <div class="guide-body">
+            <ol>
+              <li>满足功能要求前提下兼顾加工经济性，线对线/线对面的平行度、垂直度公差等级应低于面对面的等级。</li>
+              <li>面对面平行度/垂直度选级时被测面宽度应不大于长度的 1/2，大于则降低一级。</li>
+              <li>倾斜度无独立应用档位资料，参考垂直度档位选用。</li>
+              <li>鼠标悬停各等级数值块可查看该等级适用情况。</li>
+            </ol>
+          </div>
+        </details>
+      </div>
+    </details>
+  </footer>
+</main>
+
+<script>
+"use strict";
+
+/* ================= 数据：GB/T 1184-1996 附录B 等级值表（单位 μm） ================= */
+const TABLES = [
+  {
+    id: "t1", code: "表B1", name: "直线度 / 平面度", param: "L",
+    note: "直线度按被测线长度 L；平面度按被测表面较长一侧边长 L（圆表面取直径）",
+    grades: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
+    segs: [[0, 10], [10, 16], [16, 25], [25, 40], [40, 63], [63, 100], [100, 160], [160, 250], [250, 400], [400, 630], [630, 1000], [1000, 1600], [1600, 2500], [2500, 4000], [4000, 6300], [6300, 10000]],
+    rows: {
+      1: [0.2, 0.25, 0.3, 0.4, 0.5, 0.6, 0.8, 1, 1.2, 1.5, 2, 2.5, 3, 4, 5, 6],
+      2: [0.4, 0.5, 0.6, 0.8, 1, 1.2, 1.5, 2, 2.5, 3, 4, 5, 6, 8, 10, 12],
+      3: [0.8, 1, 1.2, 1.5, 2, 2.5, 3, 4, 5, 6, 8, 10, 12, 15, 20, 25],
+      4: [1.2, 1.5, 2, 2.5, 3, 4, 5, 6, 8, 10, 12, 15, 20, 25, 30, 40],
+      5: [2, 2.5, 3, 4, 5, 6, 8, 10, 12, 15, 20, 25, 30, 40, 50, 60],
+      6: [3, 4, 5, 6, 8, 10, 12, 15, 20, 25, 30, 40, 50, 60, 80, 100],
+      7: [5, 6, 8, 10, 12, 15, 20, 25, 30, 40, 50, 60, 80, 100, 120, 150],
+      8: [8, 10, 12, 15, 20, 25, 30, 40, 50, 60, 80, 100, 120, 150, 200, 250],
+      9: [12, 15, 20, 25, 30, 40, 50, 60, 80, 100, 120, 150, 200, 250, 300, 400],
+      10: [20, 25, 30, 40, 50, 60, 80, 100, 120, 150, 200, 250, 300, 400, 500, 600],
+      11: [30, 40, 50, 60, 80, 100, 120, 150, 200, 250, 300, 400, 500, 600, 800, 1000],
+      12: [60, 80, 100, 120, 150, 200, 250, 300, 400, 500, 600, 800, 1000, 1200, 1500, 2000]
+    },
+    quick: [[1, 2, "精密量具·量仪导轨"], [3, 4, "宽平尺·高精度机床导轨"], [5, 6, "磨/车床导轨·平板"], [7, 8, "机床箱体·结合面"], [9, 10, "缸体壳体·连接面"], [11, 12, "薄片易变形件"]],
+    usage: [
+      { g: "1~2", a: 1, b: 2, t: "精密量具、测量仪器及精度要求极高的精密机械零件：0级样板、平尺、0级宽平尺、工具显微镜等精密量仪导轨面，喷油嘴针阀体端面、油泵柱塞套端面等" },
+      { g: "3", a: 3, b: 3, t: "0级及1级宽平尺工作面、1级样板平尺工作面、测量仪器圆弧导轨、测量仪器的测杆等" },
+      { g: "4", a: 4, b: 4, t: "量具、测量仪器和高精度机床导轨：测量仪器V形导轨、高精度平面磨床V形导轨和滚动导轨、轴承磨床床身导轨等" },
+      { g: "5", a: 5, b: 5, t: "1级平板、2级宽平尺、平面磨床纵/垂直/立柱导轨及工作台、液压龙门刨床导轨面、六角车床床身导轨面、柴油机进/排气门导杆等" },
+      { g: "6", a: 6, b: 6, t: "1级平板、普通车床及龙门刨床床身导轨、滚齿机立柱/床身导轨及工作台、自动车床床身导轨、卧式镗床/铣床工作台、柴油机机体上部结合面等" },
+      { g: "7", a: 7, b: 7, t: "2级平板、机床床头箱体、滚齿机床身导轨、镗床工作台、摇臂钻底座工作台、柴油机气门导杆、液压泵盖、压力机导轨及滑块等" },
+      { g: "8", a: 8, b: 8, t: "2级平板、车床溜板箱体、机床主轴和传动箱体、自动车床底座、气缸盖结合面、气缸座、内燃机连杆分离面、减速器壳体结合面等" },
+      { g: "9", a: 9, b: 9, t: "3级平板、机床溜板箱、立钻工作台、柴油机气缸体及连杆分离面、缸盖结合面、空压机气缸体、柴油机缸孔环面、辅助机构及手动机械的支承面等" },
+      { g: "10", a: 10, b: 10, t: "3级平板、自动车床床身底面、车床挂轮架、柴油机气缸体、汽车变速箱壳体及发动机缸盖结合面、阀片、液压管件和法兰的连接面等" },
+      { g: "11~12", a: 11, b: 12, t: "易变形的薄片、薄壳零件：离合器摩擦片、支架等要求不高的结合面" }
+    ]
+  },
+  {
+    id: "t2", code: "表B2", name: "圆度 / 圆柱度", param: "d(D)",
+    note: "按被测要素直径 d(D) 落段（等级从 0 级起，共 13 级）",
+    grades: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
+    segs: [[0, 3], [3, 6], [6, 10], [10, 18], [18, 30], [30, 50], [50, 80], [80, 120], [120, 180], [180, 250], [250, 315], [315, 400], [400, 500]],
+    rows: {
+      0: [0.1, 0.1, 0.12, 0.15, 0.2, 0.25, 0.3, 0.4, 0.6, 0.8, 1, 1.2, 1.5],
+      1: [0.2, 0.2, 0.25, 0.25, 0.3, 0.4, 0.5, 0.6, 1, 1.2, 1.6, 2, 2.5],
+      2: [0.3, 0.4, 0.4, 0.5, 0.6, 0.6, 0.8, 1, 1.2, 2, 2.5, 3, 4],
+      3: [0.5, 0.6, 0.6, 0.8, 1, 1, 1.2, 1.5, 2, 3, 4, 5, 6],
+      4: [0.8, 1, 1, 1.2, 1.5, 1.5, 2, 2.5, 3.5, 4.5, 6, 7, 8],
+      5: [1.2, 1.5, 1.5, 2, 2.5, 2.5, 3, 4, 5, 7, 8, 9, 10],
+      6: [2, 2.5, 2.5, 3, 4, 4, 5, 6, 8, 10, 12, 13, 15],
+      7: [3, 4, 4, 5, 6, 7, 8, 10, 12, 14, 16, 18, 20],
+      8: [4, 5, 6, 8, 9, 11, 13, 15, 18, 20, 23, 25, 27],
+      9: [6, 8, 9, 11, 13, 16, 19, 22, 25, 29, 32, 36, 40],
+      10: [10, 12, 15, 18, 21, 25, 30, 35, 40, 46, 52, 57, 63],
+      11: [14, 18, 22, 27, 33, 39, 46, 54, 63, 72, 81, 89, 97],
+      12: [25, 30, 36, 43, 52, 62, 74, 87, 100, 115, 130, 140, 155]
+    },
+    quick: [[0, 1, "高精度量仪/机床主轴·轴承滚珠"], [2, 3, "精密主轴·微型轴承"], [4, 5, "较精密主轴·活塞销孔"], [6, 7, "一般主轴·减速器轴颈"], [8, 9, "曲轴·缸体·传墨辊"], [10, 12, "起重机滑动轴承等"]],
+    usage: [
+      { g: "0~1", a: 0, b: 1, t: "高精度量仪主轴、高精度机床主轴、滚动轴承的滚珠和滚柱等" },
+      { g: "2", a: 2, b: 2, t: "精密量仪主轴、外套、阀套，高压油泵柱塞及套，纺锭轴承，高速柴油机进/排气门，精密机床主轴轴颈，针阀圆柱面，喷油泵柱塞及柱塞套等" },
+      { g: "3", a: 3, b: 3, t: "工具显微镜套管外圆、高精度外圆磨床主轴、磨床砂轮主轴套筒、喷油嘴针阀体、高精度微型轴承内/外圈等" },
+      { g: "4", a: 4, b: 4, t: "较精密机床主轴、精密机床主轴箱孔、高压阀门活塞/活塞销/阀体孔、高压油泵柱塞、较高精度滚动轴承配合轴、铣削动力头箱体孔等" },
+      { g: "5", a: 5, b: 5, t: "一般量仪主轴及测杆外圆、陀螺仪轴颈、一般机床主轴、较精密机床主轴箱孔、柴油机/汽油机活塞及活塞销孔、高压空压机十字头销、较低精度滚动轴承配合轴等" },
+      { g: "6", a: 6, b: 6, t: "仪表端盖外圆、一般机床主轴及箱体孔、中等压力下液压装置工作面（泵/压缩机活塞和气缸）、汽车发动机凸轮轴、纺机锭子、通用减速器轴颈、高速船用发动机及拖拉机曲轴轴颈等" },
+      { g: "7", a: 7, b: 7, t: "大功率低速柴油机曲轴/活塞/活塞销/连杆/气缸、高速柴油机箱体孔、千斤顶或压力油缸活塞、液压传动系统分配机构、机车传动轴、水泵及一般减速器轴颈等" },
+      { g: "8", a: 8, b: 8, t: "低速发动机、减速器、大功率曲柄轴轴颈、压气机连杆、拖拉机气缸体/活塞、炼胶机冷铸轴辊、印刷机传墨辊、内燃机曲轴、柴油机机体孔、凸轮轴、小型船用柴油机气缸套等" },
+      { g: "9", a: 9, b: 9, t: "空压机缸体、液压传动筒、通用机械杠杆与拉杆用套筒销子、拖拉机活塞环、套筒孔等" },
+      { g: "10~12", a: 10, b: 12, t: "印染机导布辊、绞车、吊车、起重机滑动轴承轴颈等" }
+    ]
+  },
+  {
+    id: "t3", code: "表B3", name: "平行度 / 垂直度 / 倾斜度", param: "L 或 d(D)",
+    note: "被测面/线取长度 L；被测轴线取直径 d(D)。（未注垂直度例外：按直角两边中较短边）",
+    grades: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
+    segs: [[0, 10], [10, 16], [16, 25], [25, 40], [40, 63], [63, 100], [100, 160], [160, 250], [250, 400], [400, 630], [630, 1000], [1000, 1600], [1600, 2500], [2500, 4000], [4000, 6300], [6300, 10000]],
+    rows: {
+      1: [0.4, 0.5, 0.6, 0.8, 1, 1.2, 1.5, 2, 2.5, 3, 4, 5, 6, 8, 10, 12],
+      2: [0.8, 1, 1.2, 1.5, 2, 2.5, 3, 4, 5, 6, 8, 10, 12, 15, 20, 25],
+      3: [1.5, 2, 2.5, 3, 4, 5, 6, 8, 10, 12, 15, 20, 25, 30, 40, 50],
+      4: [3, 4, 5, 6, 8, 10, 12, 15, 20, 25, 30, 40, 50, 60, 80, 100],
+      5: [5, 6, 8, 10, 12, 15, 20, 25, 30, 40, 50, 60, 80, 100, 120, 150],
+      6: [8, 10, 12, 15, 20, 25, 30, 40, 50, 60, 80, 100, 120, 150, 200, 250],
+      7: [12, 15, 20, 25, 30, 40, 50, 60, 80, 100, 120, 150, 200, 250, 300, 400],
+      8: [20, 25, 30, 40, 50, 60, 80, 100, 120, 150, 200, 250, 300, 400, 500, 600],
+      9: [30, 40, 50, 60, 80, 100, 120, 150, 200, 250, 300, 400, 500, 600, 800, 1000],
+      10: [50, 60, 80, 100, 120, 150, 200, 250, 300, 400, 500, 600, 800, 1000, 1200, 1500],
+      11: [80, 100, 120, 150, 200, 250, 300, 400, 500, 600, 800, 1000, 1200, 1500, 2000, 2500],
+      12: [120, 150, 200, 250, 300, 400, 500, 600, 800, 1000, 1200, 1500, 2000, 2500, 3000, 4000]
+    },
+    quick: [[1, 2, "高精度机床量仪基准面"], [3, 4, "普通机床导轨·主轴定位面"], [5, 8, "机床工作面·刀量夹具"], [9, 10, "低精度零件·重型机械"], [11, 12, "非工作面·减速器壳平面"]],
+    usage: [
+      { g: "1", a: 1, b: 1, t: "高精度机床、高精度测量仪器及量具等的主要基准面和工作面" },
+      { g: "2", a: 2, b: 2, t: "面对面：精密机床、精密量仪、量具及夹具的基准面和工作面；线对面：精密机床重要箱体主轴孔对基准面及其他孔；垂直度：精密机床导轨、普通机床重要导轨、机床主轴轴向定位面、精密机床主轴肩端面、滚动轴承座圈端面" },
+      { g: "3~4", a: 3, b: 4, t: "面对面：普通车床、测量仪器、量具的基准面和工作面，高精度轴承座圈/端盖/挡圈端面；线对面：机床主轴孔对基准面、重要轴承孔对基准面、床头箱体重要孔间、齿轮泵端面；垂直度：普通机床导轨、精密机床重要零件、机床重要支承面、普通机床主轴偏摆、液压传动轴瓦端面等" },
+      { g: "5~6", a: 5, b: 6, t: "面对面：一般机床零件的工作面和基准面、一般刀具/量具/夹具；线对面：机床一般轴承孔对基准面、床头箱一般孔间、主轴花键对定心直径；垂直度：普通精度机床主要基准面和工作面、回转工作台端面、一般导轨、主轴箱体孔、刀架、砂轮架及工作台回转中心、一般轴肩对轴线" },
+      { g: "7~8", a: 7, b: 8, t: "场合与5~6档相近：一般机床零件的工作面与基准面、一般刀具/量具/夹具、机床一般轴承孔与床头箱一般孔间、普通精度机床基准面、回转工作台端面、一般轴肩等，因加工经济性而放宽一至两档选用" },
+      { g: "9~10", a: 9, b: 10, t: "面对面：低精度零件、重型机械滚动轴承端盖；线对面：柴油机和煤气发动机的曲轴孔、轴颈；垂直度：花键轴轴肩端面、带式输送机法兰盘、手动卷扬机及传动装置中轴承端面、减速器壳体平面等" },
+      { g: "11~12", a: 11, b: 12, t: "面对面：零件的非工作面、卷扬机/输送机用以装减速器壳体的平面；线对面：农业机械齿轮端面等；垂直度：用于无特殊要求、一般按尺寸公差 IT12 制造的零件" }
+    ]
+  },
+  {
+    id: "t4", code: "表B4", name: "同轴度 / 对称度 / 圆跳动 / 全跳动", param: "d(D)、B、L",
+    note: "同轴度、跳动按被测回转面直径 d(D)；对称度按被测中心要素宽度 B 或长度 L",
+    grades: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
+    segs: [[0, 1], [1, 3], [3, 6], [6, 10], [10, 18], [18, 30], [30, 50], [50, 120], [120, 250], [250, 500], [500, 800], [800, 1250], [1250, 2000], [2000, 3150], [3150, 5000], [5000, 8000], [8000, 10000]],
+    rows: {
+      1: [0.4, 0.4, 0.5, 0.6, 0.8, 1, 1.2, 1.5, 2, 2.5, 3, 4, 5, 6, 8, 10, 12],
+      2: [0.6, 0.6, 0.8, 1, 1.2, 1.5, 2, 2.5, 3, 4, 5, 6, 8, 10, 12, 15, 20],
+      3: [1, 1, 1.2, 1.5, 2, 2.5, 3, 4, 5, 6, 8, 10, 12, 15, 20, 25, 30],
+      4: [1.5, 1.5, 2, 2.5, 3, 4, 5, 6, 8, 10, 12, 15, 20, 25, 30, 40, 50],
+      5: [2.5, 2.5, 3, 4, 5, 6, 8, 10, 12, 15, 20, 25, 30, 40, 50, 60, 80],
+      6: [4, 4, 5, 6, 8, 10, 12, 15, 20, 25, 30, 40, 50, 60, 80, 100, 120],
+      7: [6, 6, 8, 10, 12, 15, 20, 25, 30, 40, 50, 60, 80, 100, 120, 150, 200],
+      8: [10, 10, 12, 15, 20, 25, 30, 40, 50, 60, 80, 100, 120, 150, 200, 250, 300],
+      9: [15, 20, 25, 30, 40, 50, 60, 80, 100, 120, 150, 200, 250, 300, 400, 500, 600],
+      10: [25, 40, 50, 60, 80, 100, 120, 150, 200, 250, 300, 400, 500, 600, 800, 1000, 1200],
+      11: [40, 60, 80, 100, 120, 150, 200, 250, 300, 400, 500, 600, 800, 1000, 1200, 1500, 2000],
+      12: [60, 120, 150, 200, 250, 300, 400, 500, 600, 800, 1000, 1200, 1500, 2000, 2500, 3000, 4000]
+    },
+    quick: [[1, 4, "旋转精度极高·IT5及以上"], [5, 7, "常用·IT7~IT8"], [8, 10, "一般精度·IT9~IT11"], [11, 12, "无特殊要求·IT12"]],
+    usage: [
+      { g: "1~4", a: 1, b: 4, t: "同轴度或旋转精度要求很高的零件，一般按尺寸公差 IT5 或高于 IT5 制造。1~2级：精密测量仪器的主轴和顶尖、柴油机喷油针阀等；3~4级：机床主轴轴颈、砂轮轴轴颈、汽轮机主轴、高精度滚动轴承内/外圈等" },
+      { g: "5~7", a: 5, b: 7, t: "应用范围较广的等级，用于精度要求较高、一般按 IT7~IT8 制造的零件。5级：机床轴颈、汽轮机主轴、柱塞油泵转子、高精度滚动轴承外圈、一般精度滚动轴承内圈；6~7级：内燃机曲轴、凸轮轴轴颈、水泵轴、齿轮轴、汽车后桥输出轴、电机转子、0级精度滚动轴承内圈、印刷机传墨辊等" },
+      { g: "8~10", a: 8, b: 10, t: "用于一般精度要求，通常按 IT9~IT11 制造。8级：拖拉机发动机分配轴轴颈；9级：齿轮轴的配合面、水泵叶轮、离心泵泵体、棉花精梳机前后滚子；10级：摩托车活塞、印染机导布辊、内燃机活塞环槽底径对活塞中心、汽缸套外圈对内孔等" },
+      { g: "11~12", a: 11, b: 12, t: "用于无特殊要求的零件，一般按尺寸公差 IT12 制造" }
+    ]
+  }
+];
+
+/* ================= 数据：未注公差值（GB/T 1184-1996 表1~4，单位 mm） ================= */
+const UNOTED = {
+  line: {
+    segs: [[0, 10], [10, 30], [30, 100], [100, 300], [300, 1000], [1000, 3000]],
+    H: [0.02, 0.05, 0.1, 0.2, 0.3, 0.4],
+    K: [0.05, 0.1, 0.2, 0.4, 0.6, 0.8],
+    L: [0.1, 0.2, 0.4, 0.8, 1.2, 1.6]
+  },
+  perp: {
+    segs: [[0, 100], [100, 300], [300, 1000], [1000, 3000]],
+    H: [0.2, 0.3, 0.4, 0.5],
+    K: [0.4, 0.6, 0.8, 1],
+    L: [0.6, 1, 1.5, 2]
+  },
+  symm: {
+    segs: [[0, 100], [100, 300], [300, 1000], [1000, 3000]],
+    H: [0.5, 0.5, 0.5, 0.5],
+    K: [0.6, 0.6, 0.8, 1],
+    L: [0.6, 1, 1.5, 2]
+  }
+};
+
+/* ================= 参考尺寸取法（主参数）对照 ================= */
+const RULES = [
+  ["直线度", "L", "被测直线自身的长度"],
+  ["平面度", "L", "被测表面较长一侧边长（圆表面取直径）"],
+  ["圆度", "d(D)", "被测要素直径"],
+  ["圆柱度", "d(D)", "被测要素直径"],
+  ["平行度", "L 或 d(D)", "被测面/线取长度 L；被测轴线取直径 d(D)"],
+  ["垂直度", "L 或 d(D)", "被测面/线取长度 L；被测轴线取直径 d(D)"],
+  ["倾斜度", "L 或 d(D)", "被测面/线取长度 L；被测轴线取直径 d(D)"],
+  ["同轴度", "d(D)", "被测轴线直径"],
+  ["对称度", "B 或 L", "被测中心要素的宽度 B / 长度 L"],
+  ["位置度", "无", "无等级表，用理论正确尺寸 TED 定位"],
+  ["圆跳动", "d(D)", "被测回转表面直径"],
+  ["全跳动", "d(D)", "被测回转表面直径"],
+  ["线轮廓度", "无", "无等级表"],
+  ["面轮廓度", "无", "无等级表"]
+];
+
+/* ================= 工具函数 ================= */
+const $ = function(id){ return document.getElementById(id); };
+
+function fmtSeg(s){ return s[0] === 0 ? "≤" + s[1] : "＞" + s[0] + "~" + s[1]; }
+function findSeg(segs, v){
+  if (!isFinite(v) || v <= 0) return -1;
+  for (let i = 0; i < segs.length; i++){ if (v <= segs[i][1]) return i; }
+  return -2; /* 超上限 */
+}
+function outRangeText(t){ return "超出范围（最大 " + t.segs[t.segs.length - 1][1] + " mm）"; }
+
+/* ================= 渲染等级表卡片 ================= */
+const gradeGrid = $("gradeGrid");
+TABLES.forEach(function(t){
+  const card = document.createElement("article");
+  card.className = "panel grade-card";
+  card.innerHTML =
+    '<div class="grade-card-head"><h2>' + t.code + "　" + t.name + '</h2><span class="param-tag">主参数 ' + t.param + '</span></div>' +
+    '<p class="grade-card-note">' + t.note + '</p>' +
+    '<span class="hit-badge" id="' + t.id + '-hit"></span>' +
+    '<div class="chips" id="' + t.id + '-chips"></div>' +
+    '<div class="quick" id="' + t.id + '-quick"></div>' +
+    '<details><summary>各等级大致适用情况</summary><div class="table-wrap" id="' + t.id + '-usage"></div></details>' +
+    '<details><summary>查看整表（命中行高亮）</summary><div class="table-wrap" id="' + t.id + '-tbl"></div></details>';
+  gradeGrid.appendChild(card);
+
+  let qh = "";
+  t.quick.forEach(function(q){ qh += '<div class="qitem"><b>' + q[0] + "~" + q[1] + " 级</b>" + q[2] + "</div>"; });
+  $(t.id + "-quick").innerHTML = qh;
+
+  let uh = '<table class="data-table usage-table"><thead><tr><th>公差等级</th><th>大致适用情况（应用举例摘要）</th></tr></thead><tbody>';
+  t.usage.forEach(function(u){ uh += "<tr><td>" + u.g + " 级</td><td>" + u.t + "</td></tr>"; });
+  uh += "</tbody></table>";
+  $(t.id + "-usage").innerHTML = uh;
+});
+
+function renderTable(t, v){
+  const idx = findSeg(t.segs, v);
+  const hitEl = $(t.id + "-hit");
+  const chipsEl = $(t.id + "-chips");
+  if (idx === -1){
+    hitEl.textContent = "请输入大于 0 的参考尺寸";
+    hitEl.className = "hit-badge none";
+    chipsEl.innerHTML = "";
+  } else if (idx === -2){
+    hitEl.textContent = outRangeText(t);
+    hitEl.className = "hit-badge none";
+    chipsEl.innerHTML = "";
+  } else {
+    hitEl.textContent = "命中分段：" + fmtSeg(t.segs[idx]) + " mm";
+    hitEl.className = "hit-badge";
+    let html = "";
+    t.grades.forEach(function(g, gi){
+      const val = t.rows[g][idx];
+      const u = t.usage.find(function(x){ return g >= x.a && g <= x.b; });
+      html += '<div class="chip' + (gi % 2 ? " alt" : "") + '" title="' + g + " 级适用：" + (u ? u.t : "") + '"><b>' + g + " 级</b><span>" + val + "</span></div>";
+    });
+    chipsEl.innerHTML = html;
+  }
+  /* 整表（命中行高亮） */
+  let tbl = '<table class="data-table full-table"><thead><tr><th>主参数/mm</th>';
+  t.grades.forEach(function(g){ tbl += "<th>" + g + "级</th>"; });
+  tbl += "</tr></thead><tbody>";
+  for (let i = 0; i < t.segs.length; i++){
+    tbl += (i === idx) ? '<tr class="hl">' : "<tr>";
+    tbl += "<td>" + fmtSeg(t.segs[i]) + "</td>";
+    t.grades.forEach(function(g){ tbl += "<td>" + t.rows[g][i] + "</td>"; });
+    tbl += "</tr>";
+  }
+  tbl += "</tbody></table>";
+  $(t.id + "-tbl").innerHTML = tbl;
+}
+
+/* ================= 渲染未注公差值 ================= */
+function uChips(defs){
+  return '<div class="chip"><b>H 级</b><span>' + defs[0] + '</span></div>' +
+    '<div class="chip alt"><b>K 级</b><span>' + defs[1] + '</span></div>' +
+    '<div class="chip"><b>L 级</b><span>' + defs[2] + '</span></div>';
+}
+function uWarn(text){ return '<div class="chip warn"><b>提示</b><span>' + text + "</span></div>"; }
+
+function renderUnoted(mainV, shortV){
+  $("uRun").innerHTML = uChips([0.1, 0.2, 0.5]);
+  const iL = findSeg(UNOTED.line.segs, mainV);
+  $("uLine").innerHTML = iL >= 0
+    ? uChips([UNOTED.line.H[iL], UNOTED.line.K[iL], UNOTED.line.L[iL]])
+    : uWarn(iL === -2 ? "超出范围" : "输入尺寸");
+  const iP = findSeg(UNOTED.perp.segs, shortV);
+  const iS = findSeg(UNOTED.symm.segs, shortV);
+  const warn = uWarn(iP === -2 ? "超出范围" : "输入尺寸");
+  $("uPerp").innerHTML = iP >= 0
+    ? uChips([UNOTED.perp.H[iP], UNOTED.perp.K[iP], UNOTED.perp.L[iP]])
+    : warn;
+  $("uSymm").innerHTML = iS >= 0
+    ? uChips([UNOTED.symm.H[iS], UNOTED.symm.K[iS], UNOTED.symm.L[iS]])
+    : warn;
+}
+
+/* ================= 左侧命中分段概览 ================= */
+function renderSummary(v){
+  TABLES.forEach(function(t){
+    const li = document.querySelector('.segment-item[data-table="' + t.id + '"]');
+    const b = li.querySelector("b");
+    const idx = findSeg(t.segs, v);
+    if (idx >= 0){
+      b.textContent = fmtSeg(t.segs[idx]) + " mm";
+      li.className = "segment-item";
+    } else {
+      b.textContent = idx === -2 ? "超出范围" : "—";
+      li.className = "segment-item " + (idx === -2 ? "miss" : "empty");
+    }
+  });
+}
+
+/* ================= 参考尺寸取法表 ================= */
+(function(){
+  let h = "";
+  RULES.forEach(function(r){ h += "<tr><td>" + r[0] + "</td><td>" + r[1] + "</td><td>" + r[2] + "</td></tr>"; });
+  $("rulesBody").innerHTML = h;
+})();
+
+/* ================= 交互 ================= */
+const mainInput = $("mainSize");
+const shortInput = $("shortSize");
+function update(){
+  const v = parseFloat(mainInput.value);
+  const sv = parseFloat(shortInput.value);
+  TABLES.forEach(function(t){ renderTable(t, v); });
+  renderUnoted(v, isFinite(sv) ? sv : v);
+  renderSummary(v);
+}
+mainInput.addEventListener("input", update);
+shortInput.addEventListener("input", update);
+update();
+</script>
+</body>
+</html>
