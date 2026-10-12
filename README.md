@@ -1,49 +1,18 @@
-# WorkTools · 工作工具箱
+# WorkTools 工作工具箱
 
-在线工具站：**https://lachesism233.github.io/WorkTools/**
+收录几个机械设计与制图中常用的查询工具，打开网页即可使用，无需安装。
 
-纯前端工程计算小工具合集，无需联网、可离线使用。
+[在线使用](https://lachesism233.github.io/WorkTools/)
 
-## 工具列表
+## 工具
 
-| 工具 | 在线地址 | 说明 |
-| --- | --- | --- |
-| 配合查询 | <https://lachesism233.github.io/WorkTools/peihe-chaxun/> | 依据 GB/T 1800 查询孔轴极限偏差与配合性质，支持基孔制、基轴制与优先配合键盘 |
-| 形位公差等级速查 | <https://lachesism233.github.io/WorkTools/gdt-dengji-chaxun/> | 依据 GB/T 1184-1996 查询形位公差等级值（μm）与未注公差值 H/K/L（mm），输入参考尺寸自动落段 |
+| 工具 | 用途 |
+| --- | --- |
+| [配合查询](https://lachesism233.github.io/WorkTools/peihe-chaxun/) | 按基本尺寸、公差代号和等级查询孔轴极限偏差与配合性质，支持基孔制、基轴制和优先配合。数据依据 GB/T 1800.1、GB/T 1800.2 整理。 |
+| [形位公差等级速查](https://lachesism233.github.io/WorkTools/gdt-dengji-chaxun/) | 按参考尺寸查询 GB/T 1184-1996 中的形位公差等级值和未注公差值。 |
 
-## 目录结构
+查询结果供快速参考；用于工程设计时，请以标准原文和具体技术要求为准。
 
-每个工具一个文件夹，文件夹名即网址路径，工具入口固定为 `index.html`：
+## 许可
 
-```
-index.html            工具站首页（导航卡片）
-peihe-chaxun/         配合查询
-  └── index.html
-gdt-dengji-chaxun/    形位公差等级速查
-  └── index.html
-LICENSE               开源协议（MIT）
-.nojekyll             跳过 Jekyll 处理（GitHub Pages 纯静态发布）
-```
-
-## 新增 / 更新工具
-
-**新增：**
-
-1. 新建 `工具名/index.html`
-2. 在根目录 `index.html` 里复制一张 `.tool-card` 卡片，改链接与文案
-3. 提交推送
-
-**更新：** 用新版本覆盖对应文件夹里的 `index.html`，提交推送即可，网址不变。
-
-## 约定
-
-- 文件夹名用全小写英文 / 拼音，链接路径区分大小写、保持一致
-- 网页内引用资源用相对路径（`./`、`../assets/`），不要用 `/` 开头的绝对路径
-- 需要加载数据时用 `data.js`（`<script src>`）而不是 `fetch`，以保持「双击本地可用」
-- 由 GitHub Pages 发布（`main` 分支根目录 + `.nojekyll`）
-
-## 开源协议
-
-本项目采用 [MIT License](LICENSE) 开源，版权 © 2026 Lachesism233。
-
-允许任意使用、复制、修改、合并、发布、分发及商业用途，仅需保留版权声明与许可声明；软件按“原样”提供，不附带任何形式的担保。
+[MIT License](LICENSE)
