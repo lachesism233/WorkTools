@@ -21,6 +21,7 @@ peihe-chaxun/         配合查询
   └── index.html
 gdt-dengji-chaxun/    形位公差等级速查
   └── index.html
+LICENSE               开源协议（MIT）
 .nojekyll             跳过 Jekyll 处理（GitHub Pages 纯静态发布）
 ```
 
@@ -40,3 +41,9 @@ gdt-dengji-chaxun/    形位公差等级速查
 - 网页内引用资源用相对路径（`./`、`../assets/`），不要用 `/` 开头的绝对路径
 - 需要加载数据时用 `data.js`（`<script src>`）而不是 `fetch`，以保持「双击本地可用」
 - 由 GitHub Pages 发布（`main` 分支根目录 + `.nojekyll`）
+
+## 开源协议
+
+本项目采用 [MIT License](LICENSE) 开源，版权 © 2026 Lachesism233。
+
+允许任意使用、复制、修改、合并、发布、分发及商业用途，仅需保留版权声明与许可声明；软件按“原样”提供，不附带任何形式的担保。
