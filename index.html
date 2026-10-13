@@ -50,6 +50,12 @@ main { padding-top: 16px; padding-bottom: 16px; }
 .tool-arrow svg { width: 15px; height: 15px; display: block; }
 .tool-card:hover .tool-arrow { color: var(--accent); transform: translateX(2px); }
 
+.site-footer { margin-top: 16px; margin-bottom: 16px; padding: 12px 14px; color: #53656d; background: var(--surface); border: 1px solid var(--line); border-radius: 4px; font-size: 12px; }
+.site-footer p { margin: 0; }
+.site-footer p + p { margin-top: 5px; }
+.site-footer a { color: var(--accent); text-underline-offset: 2px; }
+.site-footer a:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
+
 @media (prefers-reduced-motion: reduce) {
   .tool-card, .tool-arrow, .header-link { transition: none; }
   .tool-card:hover .tool-arrow { transform: none; }
@@ -74,7 +80,7 @@ main { padding-top: 16px; padding-bottom: 16px; }
 
 <main class="site-shell">
   <div class="tool-grid">
-    <a class="tool-card" href="./peihe-chaxun/">
+    <a class="tool-card" href="./peihe-chaxun/index.html">
       <span class="tool-icon" aria-hidden="true">
         <svg viewBox="0 0 24 24" fill="none">
           <circle cx="9.3" cy="12" r="5.6" stroke="#316b7b" stroke-width="1.6"/>
@@ -88,7 +94,7 @@ main { padding-top: 16px; padding-bottom: 16px; }
         </svg>
       </span>
     </a>
-    <a class="tool-card" href="./gdt-dengji-chaxun/">
+    <a class="tool-card" href="./gdt-dengji-chaxun/index.html">
       <span class="tool-icon" aria-hidden="true">
         <svg viewBox="0 0 24 24" fill="none">
           <path d="M5.5 6.5h13" stroke="#316b7b" stroke-width="1.6" stroke-linecap="square"/>
@@ -104,5 +110,11 @@ main { padding-top: 16px; padding-bottom: 16px; }
     </a>
   </div>
 </main>
+
+<footer class="site-footer site-shell">
+  <p>配合查询依据 GB/T 1800.1—2020、GB/T 1800.2—2020 整理；形位公差等级速查依据 GB/T 1184—1996。</p>
+  <p>查询结果供快速参考；工程应用请以标准原文和具体技术要求为准。</p>
+  <p><a href="./LICENSE">MIT License</a></p>
+</footer>
 </body>
 </html>

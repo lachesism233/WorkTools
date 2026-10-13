@@ -255,7 +255,7 @@ footer strong { color: var(--ink-soft); font-weight: 650; }
   <div class="site-shell header-inner">
     <span class="brand"><span class="brand-mark" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square"><path d="M4 5h16M4 19h16M7 8h10M7 16h10M12 5v14M9.5 11.5 12 9l2.5 2.5M9.5 12.5 12 15l2.5-2.5"/></svg></span><span class="brand-name">公差配合</span></span>
     <nav class="header-actions" aria-label="页面链接">
-      <a class="header-link" href="../"><svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M9.5 3.5 5 8l4.5 4.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>返回首页</a>
+      <a class="header-link" href="../index.html"><svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M9.5 3.5 5 8l4.5 4.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>返回首页</a>
       <span class="header-divider" aria-hidden="true"></span>
       <a class="header-link" href="https://github.com/lachesism233/WorkTools" target="_blank" rel="noopener" title="在 GitHub 查看源码"><svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M8 0c4.42 0 8 3.58 8 8a8.013 8.013 0 0 1-5.45 7.59c-.4.08-.55-.17-.55-.38 0-.27.01-1.13.01-2.2 0-.75-.25-1.23-.54-1.48 1.78-.2 3.65-.88 3.65-3.95 0-.88-.31-1.59-.82-2.15.08-.2.36-1.02-.08-2.12 0 0-.67-.22-2.2.82-.64-.18-1.32-.27-2-.27-.68 0-1.36.09-2 .27-1.53-1.03-2.2-.82-2.2-.82-.44 1.1-.16 1.92-.08 2.12-.51.56-.82 1.28-.82 2.15 0 3.06 1.86 3.75 3.64 3.95-.23.2-.44.55-.51 1.07-.46.21-1.61.55-2.33-.66-.15-.24-.6-.83-1.23-.82-.67.01-.27.38.01.53.34.19.73.9.82 1.13.16.45.68 1.31 2.69.94 0 .67.01 1.3.01 1.49 0 .21-.15.45-.55.38A7.995 7.995 0 0 1 0 8c0-4.42 3.58-8 8-8Z"/></svg>源码</a>
     </nav>
@@ -659,7 +659,7 @@ footer strong { color: var(--ink-soft); font-weight: 650; }
       <div class="notes-overview">
         <section>
           <h3>标准与范围</h3>
-          <p>数据依据 GB/T 1800.1、GB/T 1800.2（对应 ISO 286-1、ISO 286-2）整理，覆盖孔 A～ZC、轴 a～zc，公差等级 IT1～IT18，基本尺寸范围为 0 &lt; D ≤ 3150 mm。JS/js 公差带在 IT7～IT11 且标准公差为奇数时，按 GB/T 1800.2—1998 注释取 ±(ITn−1)/2。</p>
+          <p>数据依据 GB/T 1800.1—2020、GB/T 1800.2—2020（对应 ISO 286-1、ISO 286-2）整理，覆盖孔 A～ZC、轴 a～zc，公差等级 IT1～IT18，基本尺寸范围为 0 &lt; D ≤ 3150 mm。JS/js 公差带的上、下偏差取 ±IT/2。</p>
         </section>
         <section>
           <h3>使用方式</h3>
@@ -748,8 +748,7 @@ function deltaValue(grade, ri){
   return (v === undefined) ? null : v;
 }
 function jsHalf(grade, it){
-  // 公差带 JS/js 的偏差：±IT/2；JS7~JS11 若 ITn 为奇数取 ±(ITn-1)/2
-  if (grade >= 7 && grade <= 11 && it % 2 !== 0) return (it - 1) / 2;
+  // GB/T 1800.2—2020 表 7、表 23：JS/js 的偏差为 ±IT/2
   return it / 2;
 }
 /* 轴极限偏差：返回 {es, ei} 或 null（无数据） */
@@ -867,9 +866,9 @@ function fitType(hole, shaft){
   if (hole.EI >= shaft.es) return "间隙";
   return "过渡";
 }
-/* μm -> mm 字符串（最多 4 位小数、去尾零、带符号、零为 "0"） */
+/* μm -> mm 字符串（最多 5 位小数、去尾零、带符号、零为 "0"） */
 function fmtMM(um){
-  const mm = Math.round(um * 10) / 1e4;
+  const mm = Math.round(um * 100) / 1e5;
   if (mm === 0) return "0";
   return (mm > 0 ? "+" : "") + String(mm);
 }
@@ -885,7 +884,7 @@ function calcFit(sizeText, holeCode, holeGrade, shaftCode, shaftGrade){
   }
   const hc = String(holeCode || "").trim().toUpperCase();
   if (!/^[A-Z]{1,2}$/.test(hc) || HOLE_LETTERS.indexOf(hc) < 0){
-    out.errors.push("请输入A-Z之间的字母作为孔公差带");
+    out.errors.push("请输入有效的孔公差代号（如 H、JS、ZA）");
   }
   const hg = Number(String(holeGrade == null ? "" : holeGrade).trim());
   const sg = Number(String(shaftGrade == null ? "" : shaftGrade).trim());
@@ -894,7 +893,7 @@ function calcFit(sizeText, holeCode, holeGrade, shaftCode, shaftGrade){
   }
   const sc = String(shaftCode || "").trim().toLowerCase();
   if (!/^[a-z]{1,2}$/.test(sc) || SHAFT_LETTERS.indexOf(sc) < 0){
-    out.errors.push("请输入a-z之间的字母作为轴公差带");
+    out.errors.push("请输入有效的轴公差代号（如 h、js、za）");
   }
   if (!/^\d+$/.test(String(shaftGrade).trim()) || sg < 1 || sg > 18){
     if (out.errors.indexOf("请输入1-18之间的整数") < 0) out.errors.push("请输入1-18之间的整数");
@@ -1056,23 +1055,32 @@ $("copyRes").addEventListener("click", function(){
     "孔 " + resHole.textContent + "：ES " + resHUp.textContent + " mm；EI " + resHLo.textContent + " mm",
     "轴 " + resShaft.textContent + "：es " + resSUp.textContent + " mm；ei " + resSLo.textContent + " mm"
   ].join("\n");
-  const done = function(){
+  const done = function(copied){
     const hint = $("copyHint");
-    hint.textContent = "计算结果已复制";
+    hint.textContent = copied ? "计算结果已复制" : "复制失败，请手动复制结果";
     setTimeout(function(){ hint.textContent = ""; }, 1800);
   };
-  if (navigator.clipboard && navigator.clipboard.writeText){
-    navigator.clipboard.writeText(text).then(done, function(){ fallbackCopy(text, done); });
-  } else {
-    fallbackCopy(text, done);
-  }
+  try {
+    if (navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(text).then(function(){ done(true); }, function(){ fallbackCopy(text, done); });
+      return;
+    }
+  } catch(e) {}
+  fallbackCopy(text, done);
 });
 function fallbackCopy(text, done){
   const ta = document.createElement("textarea");
   ta.value = text; ta.style.position = "fixed"; ta.style.opacity = "0";
-  document.body.appendChild(ta); ta.select();
-  try { document.execCommand("copy"); done(); } catch(e){}
-  document.body.removeChild(ta);
+  let copied = false;
+  try {
+    document.body.appendChild(ta);
+    ta.select();
+    copied = document.execCommand("copy") === true;
+  } catch(e) {
+  } finally {
+    if (ta.parentNode) ta.parentNode.removeChild(ta);
+  }
+  done(copied);
 }
 /* ================= 常用值下拉（点击输入框展开的常用值面板） ================= */
 const HOLE_CODE_OPTIONS = ["H","G","F","E","D","JS","K","M","N","P","R","S","T","U","V","X","Y","Z","ZA","ZB","ZC","J","A","B","C","CD","EF","FG"];
