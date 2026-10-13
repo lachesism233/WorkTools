@@ -45,7 +45,9 @@ main { padding-top: 16px; padding-bottom: 16px; }
 .tool-card:hover { border-color: var(--accent); }
 .tool-icon { width: 40px; height: 40px; flex: 0 0 40px; display: grid; place-items: center; background: var(--accent-soft); border: 1px solid var(--line); border-radius: 4px; }
 .tool-icon svg { width: 22px; height: 22px; display: block; }
-.tool-name { flex: 1; min-width: 0; margin: 0; font-size: 15px; font-weight: 650; }
+.tool-copy { flex: 1; min-width: 0; }
+.tool-name { margin: 0; font-size: 15px; font-weight: 650; }
+.tool-description { margin: 4px 0 0; color: #53656d; font-size: 12px; line-height: 1.45; }
 .tool-arrow { flex: 0 0 auto; color: var(--line-dark); transition: color .14s ease, transform .14s ease; }
 .tool-arrow svg { width: 15px; height: 15px; display: block; }
 .tool-card:hover .tool-arrow { color: var(--accent); transform: translateX(2px); }
@@ -87,7 +89,7 @@ main { padding-top: 16px; padding-bottom: 16px; }
           <circle cx="14.7" cy="12" r="5.6" stroke="#667780" stroke-width="1.6"/>
         </svg>
       </span>
-      <h2 class="tool-name">配合查询</h2>
+      <div class="tool-copy"><h2 class="tool-name">配合查询</h2><p class="tool-description">按基本尺寸、公差代号和 IT 等级查询孔轴偏差与配合性质。</p></div>
       <span class="tool-arrow" aria-hidden="true">
         <svg viewBox="0 0 16 16" fill="none">
           <path d="M6 3.5 10.5 8 6 12.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
@@ -101,7 +103,7 @@ main { padding-top: 16px; padding-bottom: 16px; }
           <path d="M8.5 10.8h10l-3 6.9h-10z" stroke="#667780" stroke-width="1.6" stroke-linejoin="miter"/>
         </svg>
       </span>
-      <h2 class="tool-name">形位公差等级速查</h2>
+      <div class="tool-copy"><h2 class="tool-name">形位公差等级速查</h2><p class="tool-description">按参考尺寸查询形位公差等级值与未注公差值。</p></div>
       <span class="tool-arrow" aria-hidden="true">
         <svg viewBox="0 0 16 16" fill="none">
           <path d="M6 3.5 10.5 8 6 12.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>

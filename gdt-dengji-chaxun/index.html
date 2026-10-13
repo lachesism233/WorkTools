@@ -7,6 +7,7 @@
 <meta name="theme-color" content="#203a47">
 <title>形位公差等级速查 | GB/T 1184-1996</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%23203a47'/%3E%3Cg transform='translate(4 4)' fill='none' stroke='%23b9d1d9' stroke-width='1.5' stroke-linecap='square'%3E%3Cpath d='M5.5 6.5h13M8.5 10.8h10l-3 6.9h-10z'/%3E%3C/g%3E%3C/svg%3E">
+<script src="../details-animation.js" defer></script>
 <style>
 :root {
   color-scheme: light;
@@ -68,7 +69,7 @@ main { padding-top: 12px; padding-bottom: 16px; }
 .field-label { display: block; color: var(--ink-soft); font-size: 14px; font-weight: 650; }
 .dimension-control { position: relative; width: 100%; }
 #mainSize { height: 42px; padding: 0 48px 0 11px; font-family: var(--mono); font-size: 16px; }
-#mainSize::placeholder { color: #7a898f; font-size: 14px; }
+#mainSize::placeholder { color: var(--muted); font-size: 14px; }
 #mainSize:placeholder-shown:not(:focus) { background: var(--missing-soft); border: 1.5px dashed var(--missing); }
 .unit-suffix { position: absolute; top: 50%; right: 11px; transform: translateY(-50%); color: var(--muted); font-family: var(--mono); font-size: 12px; pointer-events: none; }
 .input-hint { margin: 0; padding: 10px 12px; color: var(--muted); background: var(--surface-soft); border: 1px solid var(--line); border-radius: 4px; font-size: 12px; line-height: 1.7; }
@@ -88,6 +89,9 @@ main { padding-top: 12px; padding-bottom: 16px; }
 input[type="number"] { width: 100%; height: 36px; padding: 0 9px; color: var(--ink); background: #fff; border: 1px solid var(--line-dark); border-radius: 4px; font-size: 14px; transition: border-color .14s ease, box-shadow .14s ease; }
 input[type="number"]:hover { border-color: #8198a2; }
 input[type="number"]:focus { outline: 0; border-color: var(--accent); box-shadow: 0 0 0 2px var(--focus); }
+input[type="number"].range-error { color: #8c4a2c; background: var(--missing-soft); border-color: var(--missing); }
+input[type="number"].range-error:focus { border-color: var(--missing); box-shadow: 0 0 0 2px rgba(182, 90, 53, .22); }
+.field-error { display: block; margin-top: 4px; color: #8c4a2c; font-size: 12px; line-height: 1.45; }
 input[type="number"]::-webkit-outer-spin-button, input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
 input[type="number"] { -moz-appearance: textfield; appearance: textfield; }
 
@@ -224,11 +228,12 @@ footer strong, footer b { color: var(--ink-soft); font-weight: 650; }
             <div class="dimension-row">
               <label class="field-label" for="mainSize">参考尺寸</label>
               <div class="dimension-control">
-                <input id="mainSize" type="number" inputmode="decimal" step="any" min="0" value="60" placeholder="输入参考尺寸" aria-required="true">
+                <input id="mainSize" type="number" inputmode="decimal" step="any" min="0" placeholder="输入参考尺寸" aria-required="true">
                 <span class="unit-suffix">mm</span>
               </div>
+              <small class="field-error" id="mainSizeError" aria-live="polite" hidden></small>
             </div>
-            <p class="input-hint">填入<b>被测要素</b>的参考尺寸：线性要素（面/线）填长度 <b>L</b>，回转要素（轴/孔）填直径 <b>d(D)</b>，对称中心要素填宽度 <b>B</b> 或长度 <b>L</b>。四张等级表同时按该值落段。</p>
+            <p class="input-hint">填入<b>被测要素</b>的参考尺寸：线性要素（面/线）填长度 <b>L</b>，回转要素（轴/孔）填直径 <b>d(D)</b>，对称中心要素填宽度 <b>B</b> 或长度 <b>L</b>。四张等级表同时按该值落段；超出任一表范围时输入框标红，其他仍在范围内的表继续显示结果。</p>
           </section>
 
           <section class="result-panel" aria-labelledby="segmentTitle">
@@ -263,8 +268,9 @@ footer strong, footer b { color: var(--ink-soft); font-weight: 650; }
         </section>
         <section class="panel ucard">
           <h3>垂直度（按短边）</h3>
-          <p class="usub">直角两边中较短的一边（长边作基准）</p>
-          <input type="number" id="shortSize" value="60" min="0" step="any" inputmode="decimal" aria-label="垂直度按短边参考尺寸，单位 mm">
+          <p class="usub">直角两边中较短的一边（长边作基准）；超出查表范围时输入框标红</p>
+          <input type="number" id="shortSize" min="0" step="any" inputmode="decimal" placeholder="输入短边尺寸" aria-label="垂直度按短边参考尺寸，单位 mm">
+          <small class="field-error" id="shortSizeError" aria-live="polite" hidden></small>
           <div class="uval" id="uPerp"></div>
         </section>
         <section class="panel ucard">
@@ -635,9 +641,38 @@ function renderSummary(v){
 /* ================= 交互 ================= */
 const mainInput = $("mainSize");
 const shortInput = $("shortSize");
+function setFieldError(input, errorElement, message){
+  const hasError = Boolean(message);
+  input.classList.toggle("range-error", hasError);
+  errorElement.textContent = message;
+  errorElement.hidden = !hasError;
+  if (hasError){
+    input.setAttribute("aria-invalid", "true");
+    input.setAttribute("aria-describedby", errorElement.id);
+  } else {
+    input.removeAttribute("aria-invalid");
+    if (input.getAttribute("aria-describedby") === errorElement.id) input.removeAttribute("aria-describedby");
+  }
+}
 function update(){
   const v = parseFloat(mainInput.value);
   const sv = parseFloat(shortInput.value);
+  const exceededTables = isFinite(v) ? TABLES.filter(function(t){ return findSeg(t.segs, v) === -2; }) : [];
+  let mainError = "";
+  if (isFinite(v) && v <= 0){
+    mainError = "参考尺寸必须大于 0 mm。";
+  } else if (exceededTables.length){
+    mainError = "超出" + exceededTables.map(function(t){ return t.code + "（最大 " + t.segs[t.segs.length - 1][1] + " mm）"; }).join("、") + "的查表范围；其他表仍显示结果。";
+  }
+  const shortIndex = findSeg(UNOTED.perp.segs, sv);
+  let shortError = "";
+  if (isFinite(sv) && sv <= 0){
+    shortError = "短边尺寸必须大于 0 mm。";
+  } else if (shortIndex === -2){
+    shortError = "超出垂直度、对称度未注公差表范围（最大 3000 mm）。";
+  }
+  setFieldError(mainInput, $("mainSizeError"), mainError);
+  setFieldError(shortInput, $("shortSizeError"), shortError);
   TABLES.forEach(function(t){ renderTable(t, v); });
   renderUnoted(v, isFinite(sv) ? sv : v);
   renderSummary(v);

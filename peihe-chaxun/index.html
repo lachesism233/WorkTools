@@ -7,6 +7,7 @@
 <meta name="theme-color" content="#203a47">
 <title>配合查询 | 公差与配合查询</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%23203a47'/%3E%3Cg transform='translate(4 4)' fill='none' stroke='%23b9d1d9' stroke-width='1.5' stroke-linecap='square'%3E%3Cpath d='M4 5h16M4 19h16M7 8h10M7 16h10M12 5v14M9.5 11.5 12 9l2.5 2.5M9.5 12.5 12 15l2.5-2.5'/%3E%3C/g%3E%3C/svg%3E">
+<script src="../details-animation.js" defer></script>
 <style>
 :root {
   color-scheme: light;
@@ -66,11 +67,14 @@ main { padding-top: 12px; padding-bottom: 16px; }
 .field-label { display: block; color: var(--ink-soft); font-size: 14px; font-weight: 650; }
 .dimension-control { position: relative; width: min(280px, 100%); }
 #basicDim { width: 100%; height: 42px; padding: 0 48px 0 11px; color: var(--ink); background: #fff; border: 1px solid var(--line-dark); border-radius: 4px; font-family: var(--mono); font-size: 16px; }
-#basicDim::placeholder { color: #7a898f; font-size: 14px; }
+#basicDim::placeholder { color: var(--muted); font-size: 14px; }
 #basicDim:hover, input[type="text"]:hover, input[type="number"]:hover { border-color: #8198a2; }
 #basicDim:focus, input[type="text"]:focus, input[type="number"]:focus { outline: 0; border-color: var(--accent); box-shadow: 0 0 0 2px var(--focus); }
 #basicDim:placeholder-shown:not(:focus), .tolerance-cell input:placeholder-shown:not(:focus) { background: var(--missing-soft); border: 1.5px dashed var(--missing); }
+#basicDim[aria-invalid="true"], input[type="text"][aria-invalid="true"], input[type="number"][aria-invalid="true"] { background: var(--missing-soft); border-color: var(--missing); }
+#basicDim[aria-invalid="true"]:focus, input[type="text"][aria-invalid="true"]:focus, input[type="number"][aria-invalid="true"]:focus { border-color: var(--missing); box-shadow: 0 0 0 2px rgba(182, 90, 53, .22); }
 .unit-suffix { position: absolute; top: 50%; right: 11px; transform: translateY(-50%); color: var(--muted); font-family: var(--mono); font-size: 12px; pointer-events: none; }
+.field-error { display: block; margin-top: 4px; color: #963c3f; font-size: 11px; line-height: 1.4; }
 
 .workspace-grid { display: grid; grid-template-columns: minmax(320px, 390px) minmax(0, 1fr); align-items: stretch; gap: 14px; }
 .panel { min-width: 0; background: var(--surface); border: 1px solid var(--line); border-radius: 5px; }
@@ -93,8 +97,8 @@ main { padding-top: 12px; padding-bottom: 16px; }
 .tolerance-section { margin-top: 17px; padding-top: 14px; border-top: 1px solid var(--line); }
 .tolerance-section h2 { margin: 0 0 8px; color: var(--ink-soft); font-size: 14px; font-weight: 650; }
 .tolerance-grid { display: grid; gap: 9px; }
-.tolerance-grid-row { min-width: 0; display: grid; grid-template-columns: 29px minmax(0, 1.2fr) minmax(0, .78fr); align-items: end; gap: 6px; }
-.part-label { min-height: 40px; display: flex; align-items: center; gap: 5px; color: var(--ink-soft); font-size: 13px; font-weight: 650; }
+.tolerance-grid-row { min-width: 0; display: grid; grid-template-columns: 29px minmax(0, 1.2fr) minmax(0, .78fr); align-items: start; gap: 6px; }
+.part-label { min-height: 40px; display: flex; align-items: center; gap: 5px; margin-top: 22px; color: var(--ink-soft); font-size: 13px; font-weight: 650; }
 .part-label small { display: none; }
 .part-dot { width: 7px; height: 7px; flex: 0 0 7px; border-radius: 50%; background: var(--hole); }
 .part-dot.shaft { background: var(--shaft); }
@@ -160,6 +164,7 @@ input:-webkit-autofill, input:-webkit-autofill:hover, input:-webkit-autofill:foc
 .keyboard-panel-heading h2 { margin: 0; color: var(--ink); font-size: 17px; font-weight: 650; letter-spacing: -.01em; }
 .keyboard-legend { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 12px; color: var(--muted); font-size: 11px; }
 .legend-item { display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; }
+.scroll-hint { padding-left: 9px; border-left: 1px solid var(--line-dark); white-space: nowrap; }
 .legend-dot { width: 11px; height: 11px; display: inline-block; border-radius: 2px; }
 .legend-blue { background: #2b7190; border: 1px solid #2b7190; }
 .legend-yellow { background: #f0c35e; border: 1px solid #c99529; }
@@ -172,7 +177,7 @@ input:-webkit-autofill, input:-webkit-autofill:hover, input:-webkit-autofill:foc
 .tolerance-keyboard-content[hidden] { display: none; }
 .tolerance-keyboard-table-wrapper { overflow: auto; border: 1px solid var(--line); border-radius: 3px; scrollbar-color: #a5b6bd #eef2f4; scrollbar-width: thin; }
 .tolerance-keyboard-table { width: 100%; min-width: 920px; border-collapse: separate; border-spacing: 0; background: #fff; font-size: 12px; }
-.tolerance-keyboard-table td, .tolerance-keyboard-table th { min-width: 44px; height: 40px; padding: 3px; border-right: 1px solid #edf0f2; border-bottom: 1px solid #edf0f2; text-align: center; vertical-align: middle; }
+.tolerance-keyboard-table td, .tolerance-keyboard-table th { min-width: 50px; height: 50px; padding: 2px; border-right: 1px solid #edf0f2; border-bottom: 1px solid #edf0f2; text-align: center; vertical-align: middle; }
 .tolerance-keyboard-table tr:last-child td { border-bottom: 0; }
 .tolerance-keyboard-table td:last-child, .tolerance-keyboard-table th:last-child { border-right: 0; }
 .tolerance-keyboard-table thead th { position: sticky; top: 0; z-index: 3; height: 32px; font-size: 11px; font-weight: 650; }
@@ -183,7 +188,7 @@ input:-webkit-autofill, input:-webkit-autofill:hover, input:-webkit-autofill:foc
 .fit-keyboard-table .th-interference, .shaft-fit-keyboard-table .th-interference { color: #8d2f38; background: var(--interference); }
 .tolerance-keyboard-table thead .th-clearance, .tolerance-keyboard-table thead .th-transition, .tolerance-keyboard-table thead .th-interference { padding-left: 10px; text-align: left; }
 .tolerance-keyboard-table tbody td:not(.td-grade) { background: #fcfdfd; }
-.kb-btn { width: calc(100% - 2px); min-height: 34px; display: inline-flex; align-items: center; justify-content: center; margin: 1px; padding: 0 4px; border: 1px solid transparent; border-radius: 3px; font-family: var(--mono); font-size: 11px; font-weight: 650; cursor: pointer; transition: background .12s ease, border-color .12s ease, color .12s ease; }
+.kb-btn { width: 100%; min-height: 44px; display: inline-flex; align-items: center; justify-content: center; margin: 0; padding: 0 4px; border: 1px solid transparent; border-radius: 3px; font-family: var(--mono); font-size: 11px; font-weight: 650; cursor: pointer; transition: background .12s ease, border-color .12s ease, color .12s ease; }
 .kb-btn-blue { color: #fff; background: #2b7190; border-color: #2b7190; }
 .kb-btn-blue:hover { color: #fff; background: #215b76; border-color: #215b76; }
 .kb-btn-yellow { color: #704800; background: #fff1c9; border-color: #d2a33d; }
@@ -219,8 +224,8 @@ footer strong { color: var(--ink-soft); font-weight: 650; }
   footer .notes-overview { grid-template-columns: 1fr; }
   .tolerance-grid { grid-template-columns: 1fr; gap: 9px; }
   .tolerance-keyboard-table { min-width: 700px; }
-  .tolerance-keyboard-table td, .tolerance-keyboard-table th { min-width: 36px; height: 36px; }
-  .kb-btn { min-height: 30px; font-size: 12px; }
+  .tolerance-keyboard-table td, .tolerance-keyboard-table th { min-width: 50px; height: 50px; }
+  .kb-btn { min-height: 44px; font-size: 12px; }
 }
 @media (max-width: 650px) {
   .site-shell { width: calc(100% - 20px); }
@@ -242,8 +247,8 @@ footer strong { color: var(--ink-soft); font-weight: 650; }
   .keyboard-panel-heading { align-items: flex-start; flex-direction: column; gap: 6px; }
   .keyboard-panel-heading h2 { font-size: 16px; }
   .tolerance-keyboard-table { min-width: 800px; }
-  .tolerance-keyboard-table td, .tolerance-keyboard-table th { min-width: 40px; height: 38px; }
-  .kb-btn { min-height: 32px; font-size: 11px; }
+  .tolerance-keyboard-table td, .tolerance-keyboard-table th { min-width: 50px; height: 50px; }
+  .kb-btn { min-height: 44px; font-size: 11px; }
 }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; }
@@ -272,6 +277,7 @@ footer strong { color: var(--ink-soft); font-weight: 650; }
           <div class="dimension-row">
             <label class="field-label" for="basicDim">基本尺寸</label>
             <div class="dimension-control"><input id="basicDim" type="number" inputmode="decimal" step="any" min="0.001" max="3150" placeholder="输入基本尺寸" aria-required="true"><span class="unit-suffix">mm</span></div>
+            <small class="field-error" id="basicDimError" aria-live="polite" hidden></small>
           </div>
 
           <fieldset class="system-field" id="benchmarkBox">
@@ -287,13 +293,13 @@ footer strong { color: var(--ink-soft); font-weight: 650; }
             <div class="tolerance-grid">
               <div class="tolerance-grid-row">
                 <div class="part-label"><span class="part-dot" aria-hidden="true"></span><span>孔</span></div>
-                <div class="tolerance-cell"><label for="inputHoleToleranceCode">公差代号</label><div class="input-wrap"><input type="text" id="inputHoleToleranceCode" value="H" placeholder="代号" spellcheck="false" aria-label="孔公差代号" aria-required="true"></div></div>
-                <div class="tolerance-cell"><label for="inputHoleToleranceGrade">等级 IT</label><div class="input-wrap"><input type="number" min="1" max="18" step="1" id="inputHoleToleranceGrade" value="6" placeholder="IT" aria-label="孔公差等级" aria-required="true"></div></div>
+                <div class="tolerance-cell"><label for="inputHoleToleranceCode">公差代号</label><div class="input-wrap"><input type="text" id="inputHoleToleranceCode" value="H" placeholder="代号" spellcheck="false" aria-label="孔公差代号" aria-required="true"></div><small class="field-error" id="holeCodeError" aria-live="polite" hidden></small></div>
+                <div class="tolerance-cell"><label for="inputHoleToleranceGrade">等级 IT</label><div class="input-wrap"><input type="number" min="1" max="18" step="1" id="inputHoleToleranceGrade" value="6" placeholder="IT" aria-label="孔公差等级" aria-required="true"></div><small class="field-error" id="holeGradeError" aria-live="polite" hidden></small></div>
               </div>
               <div class="tolerance-grid-row">
                 <div class="part-label"><span class="part-dot shaft" aria-hidden="true"></span><span>轴</span></div>
-                <div class="tolerance-cell"><label for="inputShaftToleranceCode">公差代号</label><div class="input-wrap"><input type="text" id="inputShaftToleranceCode" value="" placeholder="代号" spellcheck="false" aria-label="轴公差代号" aria-required="true"></div></div>
-                <div class="tolerance-cell"><label for="inputShaftToleranceGrade">等级 IT</label><div class="input-wrap"><input type="number" min="1" max="18" step="1" id="inputShaftToleranceGrade" value="5" placeholder="IT" aria-label="轴公差等级" aria-required="true"></div></div>
+                <div class="tolerance-cell"><label for="inputShaftToleranceCode">公差代号</label><div class="input-wrap"><input type="text" id="inputShaftToleranceCode" value="" placeholder="代号" spellcheck="false" aria-label="轴公差代号" aria-required="true"></div><small class="field-error" id="shaftCodeError" aria-live="polite" hidden></small></div>
+                <div class="tolerance-cell"><label for="inputShaftToleranceGrade">等级 IT</label><div class="input-wrap"><input type="number" min="1" max="18" step="1" id="inputShaftToleranceGrade" value="5" placeholder="IT" aria-label="轴公差等级" aria-required="true"></div><small class="field-error" id="shaftGradeError" aria-live="polite" hidden></small></div>
               </div>
             </div>
           </section>
@@ -324,7 +330,7 @@ footer strong { color: var(--ink-soft); font-weight: 650; }
       <section class="panel keyboard-panel" aria-labelledby="keyboardSectionTitle">
         <div class="keyboard-panel-heading">
           <h2 id="keyboardSectionTitle">优先配合键盘</h2>
-          <div class="keyboard-legend" aria-label="键盘标识"><span class="legend-item"><span class="legend-dot legend-blue" aria-hidden="true"></span>优先配合</span><span class="legend-item"><span class="legend-dot legend-yellow" aria-hidden="true"></span>可用配合</span></div>
+          <div class="keyboard-legend" aria-label="键盘标识"><span class="legend-item"><span class="legend-dot legend-blue" aria-hidden="true"></span>优先配合</span><span class="legend-item"><span class="legend-dot legend-yellow" aria-hidden="true"></span>可用配合</span><span class="scroll-hint">表格可横向滚动</span></div>
         </div>
 
         <section class="tolerance-keyboard-wrapper" id="fitKeyboardWrapper" aria-label="基孔制优先配合键盘">
@@ -872,31 +878,37 @@ function fmtMM(um){
   if (mm === 0) return "0";
   return (mm > 0 ? "+" : "") + String(mm);
 }
-/* 完整计算：返回 {ok, errors, hole, shaft, fitName, msgs, sizeText, holeText, shaftText} */
+/* 完整计算：返回结果、校验错误及对应字段提示 */
 function calcFit(sizeText, holeCode, holeGrade, shaftCode, shaftGrade){
-  const out = { ok: false, errors: [], hole: null, shaft: null, fitName: null, msgs: [], sizeText: String(sizeText), holeText: "", shaftText: "" };
+  const out = { ok: false, errors: [], fieldErrors: {}, hole: null, shaft: null, fitName: null, msgs: [], sizeText: String(sizeText), holeText: "", shaftText: "" };
   const sizeRaw = String(sizeText == null ? "" : sizeText).trim();
   const size = Number(sizeRaw);
   if (sizeRaw === "" || isNaN(size)){
-    out.errors.push("请输入基本尺寸");
+    out.fieldErrors.basicDim = "请输入基本尺寸";
+    out.errors.push(out.fieldErrors.basicDim);
   } else if (size <= 0 || size > 3150){
-    out.errors.push("本查询只限于0到3150之间的基本尺寸");
+    out.fieldErrors.basicDim = "本查询只限于0到3150之间的基本尺寸";
+    out.errors.push(out.fieldErrors.basicDim);
   }
   const hc = String(holeCode || "").trim().toUpperCase();
   if (!/^[A-Z]{1,2}$/.test(hc) || HOLE_LETTERS.indexOf(hc) < 0){
-    out.errors.push("请输入有效的孔公差代号（如 H、JS、ZA）");
+    out.fieldErrors.holeCode = "请输入有效的孔公差代号（如 H、JS、ZA）";
+    out.errors.push(out.fieldErrors.holeCode);
   }
   const hg = Number(String(holeGrade == null ? "" : holeGrade).trim());
   const sg = Number(String(shaftGrade == null ? "" : shaftGrade).trim());
   if (!/^\d+$/.test(String(holeGrade).trim()) || hg < 1 || hg > 18){
-    out.errors.push("请输入1-18之间的整数");
+    out.fieldErrors.holeGrade = "请输入1-18之间的整数";
+    out.errors.push(out.fieldErrors.holeGrade);
   }
   const sc = String(shaftCode || "").trim().toLowerCase();
   if (!/^[a-z]{1,2}$/.test(sc) || SHAFT_LETTERS.indexOf(sc) < 0){
-    out.errors.push("请输入有效的轴公差代号（如 h、js、za）");
+    out.fieldErrors.shaftCode = "请输入有效的轴公差代号（如 h、js、za）";
+    out.errors.push(out.fieldErrors.shaftCode);
   }
   if (!/^\d+$/.test(String(shaftGrade).trim()) || sg < 1 || sg > 18){
-    if (out.errors.indexOf("请输入1-18之间的整数") < 0) out.errors.push("请输入1-18之间的整数");
+    out.fieldErrors.shaftGrade = "请输入1-18之间的整数";
+    if (out.errors.indexOf(out.fieldErrors.shaftGrade) < 0) out.errors.push(out.fieldErrors.shaftGrade);
   }
   if (out.errors.length) return out;
   out.sizeText = String(sizeText).trim();
@@ -923,6 +935,37 @@ const dim = $("basicDim"), holeCodeEl = $("inputHoleToleranceCode"), holeGradeEl
 const resSize = $("basicDimRes"), resHole = $("holeToleranceCodeandGradeRes"), resShaft = $("shaftToleranceCodeandGradeRes"),
       resHUp = $("holeUpperDeviation"), resHLo = $("holeLowerDeviation"), resSUp = $("shaftUpperDeviation"), resSLo = $("shaftLowerDeviation"),
       errInfo = $("errorInfo"), errMsg = $("errorMsg");
+const fieldErrorControls = {
+  basicDim: { input: dim, error: $("basicDimError") },
+  holeCode: { input: holeCodeEl, error: $("holeCodeError") },
+  holeGrade: { input: holeGradeEl, error: $("holeGradeError") },
+  shaftCode: { input: shaftCodeEl, error: $("shaftCodeError") },
+  shaftGrade: { input: shaftGradeEl, error: $("shaftGradeError") }
+};
+
+function renderFieldErrors(errors){
+  Object.keys(fieldErrorControls).forEach(function(key){
+    const field = fieldErrorControls[key];
+    const message = errors[key] || "";
+    field.error.textContent = message;
+    field.error.hidden = !message;
+    if (message){
+      field.input.setAttribute("aria-invalid", "true");
+      field.input.setAttribute("aria-describedby", field.error.id);
+      const combo = field.input.closest(".combo");
+      if (combo){
+        combo.classList.remove("open");
+        const menu = combo.querySelector(".combo-menu");
+        const toggle = combo.querySelector(".combo-toggle");
+        if (menu) menu.hidden = true;
+        if (toggle) toggle.setAttribute("aria-expanded", "false");
+      }
+    } else {
+      field.input.removeAttribute("aria-invalid");
+      if (field.input.getAttribute("aria-describedby") === field.error.id) field.input.removeAttribute("aria-describedby");
+    }
+  });
+}
 
 /* 键盘按钮初始 aria 状态 */
 document.querySelectorAll(".kb-btn").forEach(function(btn){ btn.setAttribute("aria-pressed", "false"); });
@@ -964,11 +1007,13 @@ function clearResult(){
 function doQuery(){
   const r = calcFit(dim.value, holeCodeEl.value, holeGradeEl.value, shaftCodeEl.value, shaftGradeEl.value);
   if (r.errors.length){
+    renderFieldErrors(r.fieldErrors);
     clearResult();
-    errInfo.textContent = r.errors[0];
-    errMsg.textContent = r.errors.slice(1).join("；");
+    errInfo.textContent = "";
+    errMsg.textContent = "";
     return r;
   }
+  renderFieldErrors({});
   errInfo.textContent = "";
   renderResult(r);
   errMsg.textContent = (r.hole && r.shaft) ? "" : r.msgs.join(" ");
@@ -976,6 +1021,7 @@ function doQuery(){
 }
 function autoQueryFromInputs(){
   clearKeyboardSelection();
+  renderFieldErrors({});
   errInfo.textContent = "";
   errMsg.textContent = "";
   const values = [dim, holeCodeEl, holeGradeEl, shaftCodeEl, shaftGradeEl].map(function(input){
@@ -1007,6 +1053,7 @@ function setBenchmark(system, resetValues){
     shaftGradeEl.value = "5";
     clearKeyboardSelection();
     clearResult();
+    renderFieldErrors({});
     errInfo.textContent = "";
     errMsg.textContent = "";
   }
@@ -1158,8 +1205,15 @@ function makeCombo(input, options, menuClass){
   });
   input.addEventListener("click", function(){ if (menu.hidden) open(""); });
   input.addEventListener("input", function(){
+    if (input.getAttribute("aria-invalid") === "true"){
+      close();
+      return;
+    }
     if (menu.hidden) open(input.value || "");
     else render(input.value || "");
+  });
+  wrap.addEventListener("focusout", function(e){
+    if (!wrap.contains(e.relatedTarget)) close();
   });
   input.addEventListener("keydown", function(e){
     if (e.key === "Escape") close();
