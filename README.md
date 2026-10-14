@@ -15,4 +15,6 @@
 
 ## 许可
 
-[MIT License](LICENSE)
+本项目采用 [GNU General Public License v3.0](LICENSE) 许可。
+
+Copyright (C) 2026 Lachesism233
